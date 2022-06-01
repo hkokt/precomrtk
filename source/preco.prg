@@ -28,6 +28,25 @@ Return
 
 Function Precototal()
 
-
+Define Window Menuprinc;
+    At 0,0;
+    Width 600 Height 600;
+    Title 'Calcular Preço total';
+    Child;
+    Nomaximize;
+    Backcolor Cor
+    
+    @100,100 textbox pegaHora width 150
+    
+    @300,100 textbox pegaPreço width 150
+    
+    @500,100 textbox mostraTotal width 150 readonly
+                    
+    @100,300 button calculaTotal;
+    Caption 'Calcular'
+    
+    End Window 
+    Center Window Menuprinc
+    Activate Window Menuprinc
 
 Return
