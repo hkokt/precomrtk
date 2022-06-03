@@ -1,52 +1,40 @@
-#Include "Minigui.Ch"
-#Include "Common.Ch"
-#Define Cor {255,215,227}
-#Define Cor2 {255,234,241}
+#Include "Minigui.ch"
+#Include "Common.ch"
+*-------------------------*
+Procedure MenuPrincipal
+*-------------------------*
+ 
+**REQUEST DBFCDX
 
-Procedure Menuprincipal 
+**RDDSETDEFAULT("DBFCDX")
+**DBSETDRIVER("DBFCDX")
 
-public tHora, nPreco, nTotal
+Fjanelas()
 
-Define Window Menuprinc;
-    At 0,0;
-    Width 800 Height 600;
-    Title 'PreçO Marketing';
-    Main;
-    Nomaximize;
-    Backcolor Cor
-
-    @10,10 Grid Mostraregi;
-            Width 600 Height 500;
-            Headers {'Hora', 'PreçO', 'Total'};
-            Widths {200,200,200};
-            Backcolor Cor2
-                    
-    End Window 
-    Center Window Menuprinc
-    Activate Window Menuprinc
 Return
 
-Function Precototal()
+*-------------------------*
+Function FJanelas()
+*-------------------------*
 
-Define Window Menuprinc;
-    At 0,0;
-    Width 600 Height 600;
-    Title 'Calcular Preço total';
-    Child;
-    Nomaximize;
-    Backcolor Cor
-    
-    @100,100 textbox pegaHora width 150
-    
-    @300,100 textbox pegaPreço width 150
-    
-    @500,100 textbox mostraTotal width 150 readonly
-                    
-    @100,300 button calculaTotal;
-    Caption 'Calcular'
-    
-    End Window 
-    Center Window Menuprinc
-    Activate Window Menuprinc
+DEFINE WINDOW primJanela;
+AT 0 , 0;
+WIDTH 750 HEIGHT 500;
+MAIN;
+NOMAXIMIZE;
+NOSIZE
+
+@10,10 GRID mostraConta;
+     WIDTH 400 Heigth 500;
+     HEADERS{'Preço','Hora','ToTAL'}
+
+@20,450 BUTTON CalcTotal;
+     CAPTION 'Calcular Total';
+     WIDTH 200
+     **Action {||FCalculaTotal()}
+
+End Window 
+Activate Window primJanela
+Center Window primJanela
 
 Return
