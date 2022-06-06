@@ -82,38 +82,6 @@ Activate Window janelaMenu
 Return
 
 *-------------------------*
-Function Fmostranogrid()
-*-------------------------*
-Local DataIni 
-Local DataFin 
-
-DataIni := janelaMenu.data1.value 
-DataFin := janelaMenu.data2.value
-
-janelaMenu.Mostraconta.deleteallitems	
-
-BaseMark->(OrdSetFocus(1))	
-BaseMark->(DbSeek(DtoS(DataFin),.T.))
-     
-Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
-     
-	If BaseMark->dataorc > DataFin	
-          BaseMark->(DbSkip())	
-          Loop
-     Endif
-    
-     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
-     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
-     Alltrim('R$'+ (Str(BaseMark->precohora,10,2))),;
-     Alltrim(BaseMark->cliente,150,0)}to Mostraconta of janelaMenu
-     
-     BaseMark->(DbSkip())
-     
-Enddo
-     
-Return
-
-*-------------------------*
 Function FjanelaTotal()
 *-------------------------*
 
@@ -158,7 +126,9 @@ Activate Window janelaTotal
 
 Return 
 
+*-------------------------*
 Function FgravaTotalDB()
+*-------------------------*
 
 Local nHora 
 Local nValor
@@ -182,7 +152,42 @@ cNomecliente := janelaTotal.nomeCliente.Value
 
 Return
 
+*-------------------------*
+Function Fmostranogrid()
+*-------------------------*
+
+Local DataIni 
+Local DataFin 
+
+DataIni := janelaMenu.data1.value 
+DataFin := janelaMenu.data2.value
+
+janelaMenu.Mostraconta.deleteallitems	
+
+BaseMark->(OrdSetFocus(1))	
+BaseMark->(DbSeek(DtoS(DataFin),.T.))
+     
+Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
+     
+	If BaseMark->dataorc > DataFin	
+          BaseMark->(DbSkip())	
+          Loop
+     Endif
+    
+     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
+     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
+     Alltrim('R$'+ (Str(BaseMark->precohora,10,2))),;
+     Alltrim(BaseMark->cliente,150,0)}to Mostraconta of janelaMenu
+     
+     BaseMark->(DbSkip())
+     
+Enddo
+     
+Return
+
+*-------------------------*
 Function Fcalculatotal()
+*-------------------------*
 
 Local nHora 
 Local nValor
