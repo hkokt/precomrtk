@@ -13,7 +13,7 @@ If Select('BaseMark') = 0 .and. ! MarkDBopen()
      Return
 Endif
 
-Fjanelamenu()
+Pjanelatotalmostra()
 
 Return
 
@@ -30,7 +30,7 @@ If .NOT. File (BaseMark)
      aadd(Struct,{'hora' ,'N' , 19, 4 })	
      aadd(Struct,{'preco' , 'N' , 19, 4 })	
      aadd(Struct,{'precohora' ,'N' , 19, 4 })
-	 aadd(Struct, {'cliente', 'C', 150, 0 })
+     aadd(Struct, {'cliente', 'C', 150, 0 })
      aadd(Struct, {'horaorc', 'C', 8, 0})
      aadd(Struct, {'dataorc', 'D', 8, 0})
      DbCreate(BaseMark, Struct, DRIVER)	
@@ -52,10 +52,10 @@ BaseMark->(dbSetIndex((CdxBase)))
 Return(.T.)
 
 *-------------------------*
-Procedure Fjanelamenu()
+Procedure Pjanelatotalmostra()
 *-------------------------*
 
-Define Window janelaMenu;
+Define Window janelaMenuTotal;
 At 0 , 0;
 Width 750 Height 500;
 Main;
@@ -63,26 +63,53 @@ Nomaximize;
 Nosize
 
 @10,10 Grid Mostraconta;
-     Width 450 Height 450;
+     Width 500 Height 450;
      Headers{'Qtd de Horas','Valor da Hora','Total de serviço','Nome do Cliente'};
-     Widths {100,100,100,150}
+     Widths {100,100,100,200}
 
-@20,500 Button Calctotal;     
+@20,550 Button Calctotal;     
      Caption 'Calcular Total';
-     Width 200;
-     Action {||FjanelaTotal()}
+     Width 150;
+     Action {||PjanelaTotal()}
 
-@100,500 DatePicker data1 ON ENTER {||Fmostranogrid()}
-@125,500 DatePicker data2 ON ENTER {||Fmostranogrid()}
+@100,550 DatePicker data1 ON ENTER {||Fmostranogrid(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
+@125,550 DatePicker data2 ON ENTER {||Fmostranogrid(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
 
 End Window 
-Center Window janelaMenu
-Activate Window janelaMenu
+Center Window janelaMenuTotal
+Activate Window janelaMenuTotal
 
 Return
 
 *-------------------------*
-Function FjanelaTotal()
+Function Fmostranogrid(DataIni, DataFin)
+*-------------------------*
+
+janelaMenuTotal.Mostraconta.deleteallitems	
+
+BaseMark->(OrdSetFocus(1))	
+BaseMark->(DbSeek(DtoS(DataFin),.T.))
+	     
+	Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
+	     
+		If BaseMark->dataorc > DataFin	
+	          BaseMark->(DbSkip())	
+	          Loop
+	     Endif
+	    
+	     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
+	     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
+	     Alltrim('R$'+ (Str(BaseMark->precohora,10,2))),;
+	     Alltrim(BaseMark->cliente,150,0)}to Mostraconta of janelaMenuTotal
+	     
+	     BaseMark->(DbSkip())
+	     
+	Enddo
+     
+Return
+
+*-------------------------*
+Procedure PjanelaTotal()
 *-------------------------*
 
 Define Window janelaTotal;
@@ -114,11 +141,15 @@ Nosize
 
 @125,425 Button chamaCalc;
      Caption 'Calcular' Width 150;
-     Action {||Fcalculatotal()}
+     Action {||Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value)}
 
 @175,425 Button gravaCalc;
      Caption 'Gravar' Width 150;
-     Action {||Fcalculatotal(),FgravaTotalDB(), janelaTotal.Release}
+     Action {||Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value),;
+     PgravaTotalDB(janelaTotal.InputHoras.Value,;
+     janelaTotal.InputPreco.Value,;
+     janelaTotal.ShowTotal.Value,;
+     janelaTotal.nomeCliente.Value), janelaTotal.Release}
 
 End Window 
 Center Window janelaTotal
@@ -126,76 +157,23 @@ Activate Window janelaTotal
 
 Return 
 
-*-------------------------*
-Function FgravaTotalDB()
-*-------------------------*
+Procedure PgravaTotalDB(nHora,nValor,nPrecoHora,cNomecliente)
 
-Local nHora 
-Local nValor
-Local nPrecoHora
-Local cNomecliente 
-
-nHora := val(janelaTotal.InputHoras.Value)
-nValor := val(janelaTotal.InputPreco.Value)
-nPrecoHora := val(janelaTotal.ShowTotal.Value)
-cNomecliente := janelaTotal.nomeCliente.Value
-
-     BaseMark->(ordSetFocus())
      BaseMark->(DbAppend())
-     BaseMark->hora := nHora
-     BaseMark->preco := nValor
-     BaseMark->precohora := nPrecoHora
+     BaseMark->hora := val(nHora)
+     BaseMark->preco := val(nValor)
+     BaseMark->precohora := val(nPrecoHora)
      BaseMark->cliente := cNomeCliente
-	 BaseMark->horaorc := Time()
+     BaseMark->horaorc := Time()
      BaseMark->dataorc := Date()
 	 
-
 Return
 
-*-------------------------*
-Function Fmostranogrid()
-*-------------------------*
+Function Fcalculatotal(nHora,nValor)
 
-Local DataIni 
-Local DataFin 
+Local Result
 
-DataIni := janelaMenu.data1.value 
-DataFin := janelaMenu.data2.value
+Result := val(nHora) * val(nValor)
+janelaTotal.ShowTotal.Value := Alltrim(Str(Result))
 
-janelaMenu.Mostraconta.deleteallitems	
-
-BaseMark->(OrdSetFocus(1))	
-BaseMark->(DbSeek(DtoS(DataFin),.T.))
-     
-Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
-     
-	If BaseMark->dataorc > DataFin	
-          BaseMark->(DbSkip())	
-          Loop
-     Endif
-    
-     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
-     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
-     Alltrim('R$'+ (Str(BaseMark->precohora,10,2))),;
-     Alltrim(BaseMark->cliente,150,0)}to Mostraconta of janelaMenu
-     
-     BaseMark->(DbSkip())
-     
-Enddo
-     
 Return
-
-*-------------------------*
-Function Fcalculatotal()
-*-------------------------*
-
-Local nHora 
-Local nValor
-Local nPrecoHora
-
-nHora := Val(janelaTotal.InputHoras.Value)
-nValor := Val(janelaTotal.InputPreco.Value)
-nPrecoHora := nHora * nValor
-janelaTotal.ShowTotal.Value := Alltrim(Str(nPrecoHora))
-
-Return(.T.)
