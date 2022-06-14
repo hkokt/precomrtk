@@ -2,7 +2,7 @@
 #Include "Minigui.Ch"
 #Include "Common.Ch"
 *-------------------------*
-Procedure PMeta
+Procedure PMetamostra()
 *-------------------------*
     
     Define Window janelamenumeta;
@@ -25,7 +25,7 @@ Action {||FjanelaMeta()}
 Return
 
 *-------------------------*
-Function FjanelaMeta()
+Procedure PjanelaMeta()
 *-------------------------*  
 
 	Define Window janelameta;
@@ -39,8 +39,8 @@ Function FjanelaMeta()
     Items {'hora', 'Preco'};
     Value 1 ;
     Width 110 Font 'Arial' Size 9 ;
-    On Change {|| mudaParametro()};
-    On Enter {|| mudaParametro()}
+    On Change {|| mudaParametro(janelameta.cb_MesDia.value)};
+    On Enter {|| mudaParametro(janelameta.cb_MesDia.value)}
      
     @100,100 Label infometa1 Value 'Digite a Meta desejada:';
         Width 300 Height 25 Font 'Arial' Size 09 Bold
@@ -63,7 +63,7 @@ Function FjanelaMeta()
     
     @175,425 Button gravaCalcmeta;
          Caption 'Gravar' Width 150;
-         Action {||Fcalculameta(), janelameta.Release}
+         Action {||Fcalculameta(janelameta.InputMeta.value, janelameta.Inputhorapreco.value), janelameta.Release}
     
     End Window 
     Center Window janelameta
@@ -72,10 +72,10 @@ Function FjanelaMeta()
 Return 
 
 *-------------------------*
-Function mudaParametro()
+Function mudaParametro(horaoupreco)
 *-------------------------*
 
-if janelameta.cb_MesDia.value == 2
+if horaoupreco == 2
 
 Modify Control infometa1 OF janelameta Value 'Digite a Meta desejada:'
 Modify Control infometa2 OF janelameta Value 'Digite o preço das horas: '
@@ -96,38 +96,9 @@ Function Fcalculameta(mMeta,mHoraPreco)
 *-------------------------*
 
 Local Result 
-Local ResultTempo
 
 	Result := val(mMeta) / val(mHoraPreco)
 
-if janelameta.cb_MesDia.value = 1
+	janelameta.Showhorapreco.value := Alltrim(Str(Result,10,2))
 
-	janelameta.Showhorapreco.value := Alltrim(Str(Result))
-
-else 
-	Fconvertehora(Result) 
-
-endif
-
-Return 
-
-*-------------------------*
-Function Fconvertehora(convHora)
-*-------------------------*
-Local ConvDia
-Local ConvSeg
-Local convertido 
-
-if convHora < 1
-	ConvSeg := convHora * 3.6
-elseif convHora > 24
-ConvDia := 0
-	While (convHora > 24)
-		convHora := convHora - 24 
-		ConvDia++
-	Enddo
-endif 
-/* corrigir 
-janelameta.Showhorapreco.value := Alltrim(str(ConvDia) + str(ConvHora) + str(ConvSeg))
-*/
 Return 
