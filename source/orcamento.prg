@@ -30,7 +30,7 @@ If .NOT. File (BaseMark)
      aadd(Struct,{'hora' ,'N' , 19, 4 })	
      aadd(Struct,{'preco' , 'N' , 19, 4 })	
      aadd(Struct,{'precohora' ,'N' , 19, 4 })
-	 aadd(Struct, {'cliente', 'C', 150, 0 })
+     aadd(Struct, {'cliente', 'C', 150, 0 })
      aadd(Struct, {'horaorc', 'C', 8, 0})
      aadd(Struct, {'dataorc', 'D', 8, 0})
      DbCreate(BaseMark, Struct, DRIVER)	
@@ -93,9 +93,11 @@ BaseMark->(DbSeek(DtoS(DataFin),.T.))
 	Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
 	     
 		If BaseMark->dataorc > DataFin	
-	          BaseMark->(DbSkip())	
+	        
+		  BaseMark->(DbSkip())	
 	          Loop
-	     Endif
+	        
+		Endif
 	    
 	     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
 	     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
@@ -166,7 +168,7 @@ Procedure PgravaTotalDB(nHora,nValor,nPrecoHora,cNomecliente)
      BaseMark->preco := val(nValor)
      BaseMark->precohora := val(nPrecoHora)
      BaseMark->cliente := cNomeCliente
-	 BaseMark->horaorc := Time()
+     BaseMark->horaorc := Time()
      BaseMark->dataorc := Date()
  
 Return
