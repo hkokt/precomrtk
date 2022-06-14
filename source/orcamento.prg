@@ -30,7 +30,7 @@ If .NOT. File (BaseMark)
      aadd(Struct,{'hora' ,'N' , 19, 4 })	
      aadd(Struct,{'preco' , 'N' , 19, 4 })	
      aadd(Struct,{'precohora' ,'N' , 19, 4 })
-     aadd(Struct, {'cliente', 'C', 150, 0 })
+	 aadd(Struct, {'cliente', 'C', 150, 0 })
      aadd(Struct, {'horaorc', 'C', 8, 0})
      aadd(Struct, {'dataorc', 'D', 8, 0})
      DbCreate(BaseMark, Struct, DRIVER)	
@@ -73,7 +73,7 @@ Nosize
      Action {||PjanelaTotal()}
 
 @100,550 DatePicker data1 ON ENTER {||Fmostranogrid(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
-@125,550 DatePicker data2 ON ENTER {||Fmostranogrid(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
+@145,550 DatePicker data2 ON ENTER {||Fmostranogrid(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
 
 End Window 
 Center Window janelaMenuTotal
@@ -141,11 +141,11 @@ Nosize
 
 @125,425 Button chamaCalc;
      Caption 'Calcular' Width 150;
-     Action {||Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value)}
+     Action {||janelaTotal.ShowTotal.Value := Alltrim(str(Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value)))}
 
 @175,425 Button gravaCalc;
      Caption 'Gravar' Width 150;
-     Action {||Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value),;
+     Action {||janelaTotal.ShowTotal.Value := Alltrim(str(Fcalculatotal(janelaTotal.InputHoras.Value,janelaTotal.InputPreco.Value))),;
      PgravaTotalDB(janelaTotal.InputHoras.Value,;
      janelaTotal.InputPreco.Value,;
      janelaTotal.ShowTotal.Value,;
@@ -157,23 +157,26 @@ Activate Window janelaTotal
 
 Return 
 
+*-------------------------*
 Procedure PgravaTotalDB(nHora,nValor,nPrecoHora,cNomecliente)
+*-------------------------*
 
      BaseMark->(DbAppend())
      BaseMark->hora := val(nHora)
      BaseMark->preco := val(nValor)
      BaseMark->precohora := val(nPrecoHora)
      BaseMark->cliente := cNomeCliente
-     BaseMark->horaorc := Time()
+	 BaseMark->horaorc := Time()
      BaseMark->dataorc := Date()
-	 
+ 
 Return
 
+*-------------------------*
 Function Fcalculatotal(nHora,nValor)
+*-------------------------*
 
-Local Result
+Local Result 
 
 Result := val(nHora) * val(nValor)
-janelaTotal.ShowTotal.Value := Alltrim(Str(Result))
 
-Return
+Return (Result)
