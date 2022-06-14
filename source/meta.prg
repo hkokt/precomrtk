@@ -14,7 +14,7 @@ Procedure PMetamostra()
 @20,500 Button Calctotal;     
 Caption 'Calcular Total';
 Width 200;
-Action {||FjanelaMeta()}
+Action {||PjanelaMeta()}
 
     
     End Window 
@@ -27,7 +27,7 @@ Return
 Procedure PjanelaMeta()
 *-------------------------*  
 
-	Define Window janelameta;
+    Define Window janelameta;
     At 0 , 0;
     Width 750 Height 500;
     Child;
