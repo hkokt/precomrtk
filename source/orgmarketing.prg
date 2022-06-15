@@ -19,7 +19,7 @@ Endif
 
 Define Window escolhendo;
 At 0 , 0;
-Width 100 Height 200;
+Width 200 Height 200;
 Main;
 Nomaximize;
 Nosize
