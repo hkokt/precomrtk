@@ -3,7 +3,6 @@
 *-------------------------*
 Procedure Principal
 *-------------------------*
- 
 REQUEST DBFCDX
 
 RDDSETDEFAULT("DBFCDX")
@@ -20,7 +19,6 @@ Return
 *-------------------------*
 Function MarkDBopen()
 *-------------------------*
-
 Local DRIVER := 'DBFCDX'
 Local Struct := {}
 Local CdxBase := 'indexabase'
@@ -54,7 +52,6 @@ Return(.T.)
 *-------------------------*
 Procedure Pjanelatotalmostra()
 *-------------------------*
-
 Define Window janelaMenuTotal;
 At 0 , 0;
 Width 750 Height 500;
@@ -84,7 +81,6 @@ Return
 *-------------------------*
 Function Fmostranogrid(DataIni, DataFin)
 *-------------------------*
-
 janelaMenuTotal.Mostraconta.deleteallitems	
 
 BaseMark->(OrdSetFocus(1))	
@@ -93,11 +89,9 @@ BaseMark->(DbSeek(DtoS(DataFin),.T.))
 	Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
 	     
 		If BaseMark->dataorc > DataFin	
-	        
-		  BaseMark->(DbSkip())	
+	          BaseMark->(DbSkip())	
 	          Loop
-	        
-		Endif
+	     Endif
 	    
 	     Add Item{Alltrim((Str(BaseMark->hora,10,2))),;
 	     Alltrim('R$'+ (Str(BaseMark->preco,10,2))),;
@@ -113,7 +107,6 @@ Return
 *-------------------------*
 Procedure PjanelaTotal()
 *-------------------------*
-
 Define Window janelaTotal;
 At 0 , 0;
 Width 750 Height 500;
@@ -129,17 +122,23 @@ Nosize
 @100,100 Label info2 Value 'Quantidade de horas trabalhadas :';
 	Width 300 Height 25 Font 'Arial' Size 09 Bold
 
-@125,100 Textbox InputHoras Width 300
+@125,100 Textbox InputHoras Width 200
 
-@200,100 Label info3 Value 'Valor da hora :';
+@175,100 Label info3 Value 'Valor da hora :';
 	Width 300 Height 25 Font 'Arial' Size 09 Bold
 
-@225,100 Textbox InputPreco Width 300
+@200,100 Label RealTotal1 Value 'R$';
+	Width 20 Height 25 Font 'Arial' Size 09 Bold
 
-@300,100 Label info4 Value 'Valor pelo serviço :';
+@200,120 Textbox InputPreco Width 200
+
+@250,100 Label info4 Value 'Valor pelo serviço :';
      Width 300 Height 25 Font 'Arial' Size 09 Bold
 
-@375,100 Textbox ShowTotal Width 300 Readonly
+@275,100 Label RealTotal2 Value 'R$';
+	Width 20 Height 25 Font 'Arial' Size 09 Bold
+	
+@275,120 Textbox ShowTotal Width 200 Readonly
 
 @125,425 Button chamaCalc;
      Caption 'Calcular' Width 150;
@@ -160,13 +159,12 @@ Activate Window janelaTotal
 Return 
 
 *-------------------------*
-Procedure PgravaTotalDB(nHora,nValor,nPrecoHora,cNomecliente)
+Procedure PgravaTotalDB(nHoraTotal,nValorTotal,nPrecoHoraTotal,cNomecliente)
 *-------------------------*
-
      BaseMark->(DbAppend())
-     BaseMark->hora := val(nHora)
-     BaseMark->preco := val(nValor)
-     BaseMark->precohora := val(nPrecoHora)
+     BaseMark->hora := val(nHoraTotal)
+     BaseMark->preco := val(nValorTotal)
+     BaseMark->precohora := val(nPrecoHoraTotal)
      BaseMark->cliente := cNomeCliente
      BaseMark->horaorc := Time()
      BaseMark->dataorc := Date()
@@ -174,11 +172,10 @@ Procedure PgravaTotalDB(nHora,nValor,nPrecoHora,cNomecliente)
 Return
 
 *-------------------------*
-Function Fcalculatotal(nHora,nValor)
+Function Fcalculatotal(nHoraTotal,nValorTotal)
 *-------------------------*
-
 Local Result 
 
-Result := val(nHora) * val(nValor)
+Result := val(nHoraTotal) * val(nValorTotal)
 
 Return (Result)
