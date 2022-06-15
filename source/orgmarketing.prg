@@ -8,13 +8,18 @@ REQUEST DBFCDX
 RDDSETDEFAULT("DBFCDX")
 DBSETDRIVER("DBFCDX")
 
-If Select('BaseMark') = 0 .and. ! MarkDBopen()
+If Select('BaseMark') = 0 .and. ! MarkDBtotalopen()
      Return
 Endif
 
+If Select('BaseMeta') = 0 .and. ! MarkDBmetaopen()
+     Return
+Endif
+
+
 Define Window escolhendo;
 At 0 , 0;
-Width 200 Height 200;
+Width 100 Height 200;
 Main;
 Nomaximize;
 Nosize
@@ -42,7 +47,7 @@ Endif
 Return
 
 *-------------------------*
-Function MarkDBopen()
+Function MarkDBtotalopen()
 *-------------------------*
 Local DRIVER := 'DBFCDX'
 Local Struct := {}
@@ -53,7 +58,7 @@ If .NOT. File (BaseMark)
      aadd(Struct,{'hora' ,'N' , 19, 4 })	
      aadd(Struct,{'preco' , 'N' , 19, 4 })	
      aadd(Struct,{'precohora' ,'N' , 19, 4 })
-	 aadd(Struct, {'cliente', 'C', 150, 0 })
+	aadd(Struct, {'cliente', 'C', 150, 0 })
      aadd(Struct, {'horaorc', 'C', 8, 0})
      aadd(Struct, {'dataorc', 'D', 8, 0})
      DbCreate(BaseMark, Struct, DRIVER)	
@@ -71,6 +76,39 @@ If ! File (Cdxbase+".cdx")
 Endif 	
 
 BaseMark->(dbSetIndex((CdxBase)))
+
+Return(.T.)
+
+*-------------------------*
+Function MarkDBmetaopen()
+*-------------------------*
+Local DRIVER := 'DBFCDX'
+Local Struct := {}
+Local CdxMeta := 'indexameta'
+Local BaseMeta := 'BaseMeta.DBF'
+
+If .NOT. File (BaseMeta)
+     aadd(Struct,{'meta' ,'N' , 19, 4 })
+     aadd(Struct,{'horaprecom' , 'N' , 19, 4 })
+     aadd(Struct,{'parameta' ,'N' , 19, 4 })
+     aadd(Struct,{'nomemeta', 'C', 150, 0 })
+     aadd(Struct,{'horameta', 'C', 8, 0})
+     aadd(Struct,{'datameta', 'D', 8, 0})
+     DbCreate(BaseMeta, Struct, DRIVER)
+Endif
+
+USE (BaseMeta) ALIAS BaseMeta New Shared Via DRIVER
+
+If NetErr()
+     MsgSTOP("Atenção ! Arquivo de [  ] está bloqueado.")
+     Return(.F.)
+Endif
+
+If ! File (CdxMeta+".cdx")
+     Index on Descend(Dtos(datameta)) + Descend(horameta) Tag tempo to (CdxMeta)
+Endif
+
+BaseMeta->(dbSetIndex((CdxMeta)))
 
 Return(.T.)
 
@@ -95,6 +133,7 @@ Nosize
      Action {||PjanelaTotal()}
 
 @100,550 DatePicker data1 ON ENTER {||Fmostragridtotal(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
+
 @145,550 DatePicker data2 ON ENTER {||Fmostragridtotal(janelaMenuTotal.data1.value,janelaMenuTotal.data2.value)}
 
 End Window 
@@ -191,7 +230,7 @@ Procedure PgravaTotalDB(nHoraTotal,nValorTotal,nPrecoHoraTotal,cNomecliente)
      BaseMark->preco := val(nValorTotal)
      BaseMark->precohora := val(nPrecoHoraTotal)
      BaseMark->cliente := cNomeCliente
-	 BaseMark->horaorc := Time()
+	BaseMark->horaorc := Time()
      BaseMark->dataorc := Date()
  
 Return
@@ -216,9 +255,13 @@ NoMaximize;
 NoSize
 
 @10,10 Grid Mostracontameta;
-     Width 300 Height 450;
-     Headers{};
-     Widths {}
+     Width 400 Height 450;
+     Headers{'nome da meta', 'meta desejada','hora ou preço', 'H/P para meta'};
+     Widths {100,100,100,100}
+
+@100,550 DatePicker datameta1 ON ENTER {||Fmostragridmeta(janelamenumeta.datameta1.value, janelamenumeta.datameta2.value)}
+
+@145,550 DatePicker datameta2 ON ENTER {||Fmostragridmeta(janelamenumeta.datameta1.value, janelamenumeta.datameta2.value)}
 
 @20,500 Button Calctotal;     
 	Caption 'Calcular Meta';
@@ -231,23 +274,26 @@ Activate Window janelamenumeta
     
 Return
 *-------------------------*
-Function Fmostragridtotal(DataIni, DataFin)
+Function Fmostragridmeta(DataI, DataF)
 *-------------------------*
 janelamenumeta.Mostracontameta.deleteallitems
 
-BaseMark->(OrdSetFocus(1))
-BaseMark->(DbSeek(DtoS(DataFin),.T.))
+BaseMeta->(OrdSetFocus(1))
+BaseMeta->(DbSeek(DtoS(DataF),.T.))
 	     
-	Do While ! BaseMark->dataorc < DataIni .and. ! BaseMark->(Eof()) 
+	Do While ! BaseMeta->datameta < DataI .and. ! BaseMeta->(Eof())
 	     
-		If BaseMark->dataorc > DataFin	
-	          BaseMark->(DbSkip())	
+		If BaseMeta->datameta > DataF
+	          BaseMeta->(DbSkip())
 	          Loop
 	     Endif
 	    
-	     Add Item{}to Mostraconta of janelaMenuTotal
+	     Add Item{Alltrim(BaseMeta->nomemeta,150,0),;
+               Alltrim(Str(BaseMeta->meta,10,2)),;
+               Alltrim(Str(BaseMeta->horaprecom,10,2)),;
+               Alltrim(Str(BaseMeta->parameta,10,2))}to mostracontameta of janelamenumeta
 	     
-	     BaseMark->(DbSkip())
+	     BaseMeta->(DbSkip())
 	     
 	Enddo
      
@@ -263,57 +309,75 @@ Nomaximize;
 Nosize;
 On Init {||mudaParametro(janelameta.cb_MesDia.value)}
 
-	@25,100 Label apelidorc orcamento value 'nome orcamento:'
+     @25,100 Label nomemeta value 'Nome para o orçamento:'
 
-	@50,100 Textbox peganomeorc Width 300
+	@50,100 Textbox peganomemeta Width 300
     
-    @75,100 Label infohorapreco Value 'Calcular meta por';
+     @75,100 Label infohorapreco Value 'Calcular meta por';
         Width 300 Height 25 Font 'Arial' Size 09 Bold
     
-    @100,100 Combobox cb_MesDia;
-    Items {'hora', 'Preço'};
-    Value 1 ;
-    Width 110 Font 'Arial' Size 9 ;
-    On Change {|| mudaParametro(janelameta.cb_MesDia.value)}
+     @100,100 Combobox cb_MesDia;
+          Items {'hora', 'Preço'};
+          Value 1 ;
+          Width 110 Font 'Arial' Size 9 ;
+          On Change {|| mudaParametro(janelameta.cb_MesDia.value)}
      
-    @125,100 Label infometa1 Width 300 Height 25 Font 'Arial' Size 09 Bold
+     @125,100 Label infometa1 Width 300 Height 25 Font 'Arial' Size 09 Bold
     
-  	@150,100 Label realmeta1 Width 20 Height 25 Font 'Arial' Size 09 Bold
+     @150,100 Label realmeta1 Width 20 Height 25 Font 'Arial' Size 09 Bold
     
-    @150,120 Textbox InputMeta Width 150
+     @150,120 Textbox InputMeta Width 150
     
-    @175,100 Label infometa2 Width 300 Height 25 Font 'Arial' Size 09 Bold
+     @175,100 Label infometa2 Width 300 Height 25 Font 'Arial' Size 09 Bold
     
-    @200,100 Label realmeta2 Width 20 Height 25 Font 'Arial' Size 09 Bold
+     @200,100 Label realmeta2 Width 20 Height 25 Font 'Arial' Size 09 Bold
     
-    @200,120 Textbox Inputhorapreco Width 150
+     @200,120 Textbox Inputhorapreco Width 150
     
-    @250,100 Label infometa3 Width 300 Height 25 Font 'Arial' Size 09 Bold
+     @250,100 Label infometa3 Width 300 Height 25 Font 'Arial' Size 09 Bold
     
-    @275,100 Label realmeta3 Width 20 Height 25 Font 'Arial' Size 09 Bold
+     @275,100 Label realmeta3 Width 20 Height 25 Font 'Arial' Size 09 Bold
     
-    @275,120 Textbox Showhorapreco Width 150 Readonly
+     @275,120 Textbox Showhorapreco Width 150 Readonly
     
-    @125,425 Button chamaCalcmeta;
-         Caption 'Calcular' Width 150;
-         Action {||janelameta.Showhorapreco.value := Alltrim(Str(Fcalculameta(janelameta.InputMeta.value,;
-         janelameta.Inputhorapreco.value)))}
+     @125,425 Button chamaCalcmeta;
+          Caption 'Calcular' Width 150;
+          Action {||janelameta.Showhorapreco.value := Alltrim(Str(Fcalculameta(janelameta.InputMeta.value,;
+          janelameta.Inputhorapreco.value)))}
     
-    @175,425 Button gravaCalcmeta;
-         Caption 'Gravar' Width 150;
-         Action {||janelameta.Showhorapreco.value := Alltrim(Str(Fcalculameta(janelameta.InputMeta.value,;
-         janelameta.Inputhorapreco.value))), janelameta.Release}
+     @175,425 Button gravaCalcmeta;
+          Caption 'Gravar' Width 150;
+          Action {||janelameta.Showhorapreco.value := Alltrim(Str(;
+          Fcalculameta(janelameta.InputMeta.value,;
+          janelameta.Inputhorapreco.value))),;
+          Pgravameta(janelameta.peganomemeta.value,;
+          janelameta.InputMeta.value,;
+          janelameta.Inputhorapreco.value,;
+          janelameta.Showhorapreco.value), janelameta.Release}
     
-End Window 
+End Window
 Center Window janelameta
-Activate Window janelameta 
+Activate Window janelameta
     
 Return 
 
 *-------------------------*
+Procedure Pgravameta(nometa, mmeta, mhorapreco, mparameta)
+*-------------------------*
+BaseMeta->(Dbappend())
+BaseMeta->nomemeta := nometa
+BaseMeta->meta := val(mmeta)
+BaseMeta->horaprecom := val(mhorapreco)
+BaseMeta->parameta := val(mparameta)
+BaseMeta->datameta := date()
+BaseMeta->horameta := time()
+
+Return
+
+*-------------------------*
 Function mudaParametro(horaoupreco)
 *-------------------------*
-if horaoupreco == 2
+If horaoupreco == 2
 
 janelameta.infometa1.value := 'Meta desejada:'
 janelameta.realmeta1.value := 'R$'
@@ -322,7 +386,7 @@ janelameta.realmeta2.value := 'R$'
 janelameta.infometa3.value := 'Horas necessário para alcançar a meta:'
 janelameta.realmeta3.value := 'Qtd'
 
-else
+Else
 
 janelameta.infometa1.value := 'Meta desejada:'
 janelameta.realmeta1.value := 'R$'
@@ -331,7 +395,7 @@ janelameta.realmeta2.value := 'Qtd'
 janelameta.infometa3.value :='Preço necessário para alcançar a meta:'
 janelameta.realmeta3.value := 'R$'
 
-endif
+Endif
 
 Return
 
