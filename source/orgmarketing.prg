@@ -178,30 +178,18 @@ Child;
 Nomaximize;
 Nosize
 
-@25,100 Label info1 Value 'Nome do cliente : ';
-	Width 300 Height 25 Font 'Arial' Size 09 Bold
-
+@25,100 Label info1 Value 'Nome do cliente : ' Width 300 Height 25 Font 'Arial' Size 09 Bold
 @50,100 Textbox nomeCliente Width 300
 
-@100,100 Label info2 Value 'Quantidade de horas trabalhadas :';
-	Width 300 Height 25 Font 'Arial' Size 09 Bold
-
+@100,100 Label info2 Value 'Quantidade de horas trabalhadas :' Width 300 Height 25 Font 'Arial' Size 09 Bold
 @125,100 Textbox InputHoras Width 200
 
-@175,100 Label info3 Value 'Valor da hora :';
-	Width 300 Height 25 Font 'Arial' Size 09 Bold
-
-@200,100 Label RealTotal1 Value 'R$';
-	Width 20 Height 25 Font 'Arial' Size 09 Bold
-
+@175,100 Label info3 Value 'Valor da hora :' Width 300 Height 25 Font 'Arial' Size 09 Bold
+@200,100 Label RealTotal1 Value 'R$' Width 20 Height 25 Font 'Arial' Size 09 Bold
 @200,120 Textbox InputPreco Width 200
 
-@250,100 Label info4 Value 'Valor pelo serviço :';
-     Width 300 Height 25 Font 'Arial' Size 09 Bold
-
-@275,100 Label RealTotal2 Value 'R$';
-	Width 20 Height 25 Font 'Arial' Size 09 Bold
-	
+@250,100 Label info4 Value 'Valor pelo serviço :' Width 300 Height 25 Font 'Arial' Size 09 Bold
+@275,100 Label RealTotal2 Value 'R$' Width 20 Height 25 Font 'Arial' Size 09 Bold
 @275,120 Textbox ShowTotal Width 200 Readonly
 
 @125,425 Button chamaCalc;
