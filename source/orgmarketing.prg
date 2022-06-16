@@ -309,13 +309,11 @@ Nomaximize;
 Nosize;
 On Init {||mudaParametro(janelameta.cb_MesDia.value)}
 
-     @25,100 Label nomemeta value 'Nome para o orçamento:'
-
-	@50,100 Textbox peganomemeta Width 300
+     @25,100 Label nomemeta value 'Nome para o orçamento:' Width 300 Height 25 Font 'Arial' Size 09 Bold
+	 @50,100 Textbox peganomemeta Width 300
     
      @75,100 Label infohorapreco Value 'Calcular meta por';
         Width 300 Height 25 Font 'Arial' Size 09 Bold
-    
      @100,100 Combobox cb_MesDia;
           Items {'hora', 'Preço'};
           Value 1 ;
@@ -323,29 +321,29 @@ On Init {||mudaParametro(janelameta.cb_MesDia.value)}
           On Change {|| mudaParametro(janelameta.cb_MesDia.value)}
      
      @125,100 Label infometa1 Width 300 Height 25 Font 'Arial' Size 09 Bold
-    
      @150,100 Label realmeta1 Width 20 Height 25 Font 'Arial' Size 09 Bold
-    
-     @150,120 Textbox InputMeta Width 150
+     @150,120 Textbox InputMeta Width 75
     
      @175,100 Label infometa2 Width 300 Height 25 Font 'Arial' Size 09 Bold
-    
      @200,100 Label realmeta2 Width 20 Height 25 Font 'Arial' Size 09 Bold
-    
-     @200,120 Textbox Inputhorapreco Width 150
+     @200,120 Textbox Inputhorapreco Width 75
+     
+     @150,250 Textbox metadias Width 75 
     
      @250,100 Label infometa3 Width 300 Height 25 Font 'Arial' Size 09 Bold
-    
      @275,100 Label realmeta3 Width 20 Height 25 Font 'Arial' Size 09 Bold
+     @275,120 Textbox Showhorapreco Width 75 Readonly
     
-     @275,120 Textbox Showhorapreco Width 150 Readonly
-    
-     @125,425 Button chamaCalcmeta;
+     @275,250 Textbox Showpordia Width 75 Readonly
+     
+     @25,425 Button chamaCalcmeta;
           Caption 'Calcular' Width 150;
           Action {||janelameta.Showhorapreco.value := Alltrim(Str(Fcalculameta(janelameta.InputMeta.value,;
-          janelameta.Inputhorapreco.value)))}
+          janelameta.Inputhorapreco.value))),;
+          janelameta.Showpordia.value := Alltrim(Str(Fmetadiaria(janelameta.Showhorapreco.value,;
+          janelameta.metadias.value)))}
     
-     @175,425 Button gravaCalcmeta;
+     @75,425 Button gravaCalcmeta;
           Caption 'Gravar' Width 150;
           Action {||janelameta.Showhorapreco.value := Alltrim(Str(;
           Fcalculameta(janelameta.InputMeta.value,;
@@ -353,7 +351,9 @@ On Init {||mudaParametro(janelameta.cb_MesDia.value)}
           Pgravameta(janelameta.peganomemeta.value,;
           janelameta.InputMeta.value,;
           janelameta.Inputhorapreco.value,;
-          janelameta.Showhorapreco.value), janelameta.Release}
+          janelameta.metadias.value,;
+          janelameta.Showhorapreco.value,;
+          janelameta.Showpordia.value), janelameta.Release}
     
 End Window
 Center Window janelameta
@@ -362,7 +362,7 @@ Activate Window janelameta
 Return 
 
 *-------------------------*
-Procedure Pgravameta(nometa, mmeta, mhorapreco, mparameta)
+Procedure Pgravameta(nometa, mmeta, mmetadias, mhorapreco, mparameta, mpordida)
 *-------------------------*
 BaseMeta->(Dbappend())
 BaseMeta->nomemeta := nometa
@@ -381,7 +381,7 @@ If horaoupreco == 2
 
 janelameta.infometa1.value := 'Meta desejada:'
 janelameta.realmeta1.value := 'R$'
-janelameta.infometa2.value := 'Preço das horas: '
+janelameta.infometa2.value := 'Preço por horas: '
 janelameta.realmeta2.value := 'R$'
 janelameta.infometa3.value := 'Horas necessário para alcançar a meta:'
 janelameta.realmeta3.value := 'Qtd'
@@ -390,9 +390,9 @@ Else
 
 janelameta.infometa1.value := 'Meta desejada:'
 janelameta.realmeta1.value := 'R$'
-janelameta.infometa2.value := 'Quantidade de horas: '
+janelameta.infometa2.value := 'Total de horas: '
 janelameta.realmeta2.value := 'Qtd'
-janelameta.infometa3.value :='Preço necessário para alcançar a meta:'
+janelameta.infometa3.value := 'Preço necessário para alcançar a meta:'
 janelameta.realmeta3.value := 'R$'
 
 Endif
@@ -402,6 +402,11 @@ Return
 *-------------------------*
 Function Fcalculameta(mMeta,mHoraPreco)
 *-------------------------*
-Result:= Val(mMeta) / Val(mHoraPreco)
 
-Return (Result)
+Return (Val(mMeta) / Val(mHoraPreco))
+
+*-------------------------*
+Function Fmetadiaria(mTotal, mDiaria)
+*-------------------------*
+
+Return (Val(mTotal)/Val(mDiaria))
