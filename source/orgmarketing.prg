@@ -153,6 +153,16 @@ Activate Window Jmeta
 
 Return Nil
 *----------------------*
+Procedure POsearch()
+*----------------------*
+
+Return
+*----------------------*
+Procedure PMsearch()
+*----------------------*
+
+Return
+*----------------------*
 Procedure PCorc()
 *----------------------*
 Define Window JCorc;
@@ -248,8 +258,6 @@ Return
 *----------------------*
 Function FCmetaH(cNome, cMeta, nHora, nPrazo)
 *----------------------*
-
-
 
 Return 
 *----------------------*
