@@ -246,6 +246,16 @@ Return Nil
 *----------------------*
 Function Fqual(escolheu)
 *----------------------*
+JCmeta.nomeM.value:='Digite o nome da meta:'
+JCmeta.meta.value:='Meta:'
+JCmeta.prazoM.value:='Prazo:'
+JCmeta.precoM.value:='Preço:'
+JCmeta.resultadopM.value:='Para meta:'
+JCmeta.resultadopdM.value:='Para meta diária:'
+JCmeta.horasM.value:='Qtd de horas:'
+JCmeta.resultadohDM.value:='Para meta diária:'
+JCmeta.resultadohM.value:='Para meta:'
+
 JCmeta.mMeta.value:=""
 JCmeta.mHoras.value:=""
 JCmeta.mPreco.value:=""
