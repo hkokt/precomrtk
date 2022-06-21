@@ -51,7 +51,7 @@ Local CdxOrc := 'indexaorc'
 Local OrcDB := 'OrcDB.DBF'
 
 If ! File (OrcDB)	
-     aadd(Struct, {'' ,'N' , 19, 4 })
+     aadd(Struct, {'b' ,'N' , 19, 4 })
      aadd(Struct, {'oHora', 'C' , 8, 0})
      aadd(Struct, {'oData', 'D' , 8, 0})
      DbCreate(OrcDB, Struct, DRIVER)
@@ -79,7 +79,7 @@ Local CdxMeta := 'indexameta'
 Local MetaDB := 'MetaDB.DBF'
 
 If ! File (MetaDB)
-     aadd(Struct,{'' , 'N' , 19, 4 })
+     aadd(Struct,{'a' , 'N' , 19, 4 })
      aadd(Struct, {'mHora', 'C' , 8, 0})
      aadd(Struct, {'mData', 'D' , 8, 0})
      DbCreate(MetaDB, Struct, DRIVER)
@@ -113,10 +113,10 @@ Nosize
 
 @ 10, 10 Grid Gorc;
 Width 350 Height 450;
-Headers {};
-Widths {}
+Headers {'a'};
+Widths {150}
 
-@400, 50 Button BCorc;
+@50, 400 Button BCorc;
 Caption 'Calcular Orçamento';
 Width 150;
 Action {|| PCorc()}
@@ -139,10 +139,10 @@ Nosize
 
 @ 10, 10 Grid Gmeta;
 Width 350 Height 450;
-Headers {};
-Widths {}
+Headers {'a'};
+Widths {150}
 
-@400, 50 Button BCmeta;
+@50, 400 Button BCmeta;
 Caption 'Calcular Meta';
 Width 150;
 Action {|| PCmeta()}
@@ -183,8 +183,7 @@ Nosize
 
 @175, 250 Button oCalcula;
 Caption 'Calcular';
-Action {|| }
-
+Action {||JCorc.oResultado.value := FCorc(JCorc.oPreco.value, JCorc.oHoras.value)}
 
 End Window 
 Center Window JCorc
@@ -194,74 +193,111 @@ Return Nil
 *----------------------*
 Procedure PCmeta()
 *----------------------*
-Define Window JCmeta 
+Define Window JCmeta; 
 At 0,0;
 Width 400 Height 400;
 Title 'Registro de Metas';
 Child;
 Nomaximize;
-Nosize
+Nosize;
+On Init {|| Fqual(JCmeta.mEscolhe.value)}
 
 @25,270 Combobox mEscolhe;
-Items{'Hora', 'Preço'}
+Items{'Hora', 'Preço'};
 Value 1;
 Width 110 Font 'Arial' Size 9 ;
 On Change {|| Fqual(JCmeta.mEscolhe.value)}
 
-@25,50 Textbox mNome Width 200
+@25,50 Label nomeM Width 200 Height 25 Font 'Arial' Size 9 Bold
+@50,50 Textbox mNome Width 200
 
-@75,50 Textbox mMeta Width 75
+@75,50 Label meta Width 75 Height 25 Font 'Arial' Size 9 Bold
+@100,50 Textbox mMeta Width 75 Rightalign 
 
-@125,50 Textbox mPreco Width 75
+@75, 140 Label prazoM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@100, 140 Textbox mPrazo Width 75 Rightalign 
 
-@125,140 Textbox mHoras Width 75
+@125,50 Label precoM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@150,50 Textbox mPreco Width 75 Rightalign 
 
-@175,50 Textbox oResultadoP Width 75 Readonly
+@175,50 Label resultadopM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@200,50 Textbox mResultadoP Width 75 Readonly Rightalign 
 
-@175,140 Textbox oResultadoH Width 75 Readonly
+@225,50 Label resultadopdM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@250,50 Textbox mResultadoPD Width 75 Readonly Rightalign 
 
-@225,50 Textbox oResultadoPD Width 75 Readonly
+@125,140 Label horasM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@150,140 Textbox mHoras Width 75 Rightalign 
 
-@225,140 Textbox oResultadoPH Width 75 Readonly
+@225,140 Label resultadohDM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@250,140 Textbox mResultadoHD Width 75 Readonly
+
+@175,140 Label resultadohM Width 75 Height 25 Font 'Arial' Size 9 Bold
+@200,140 Textbox mResultadoH Width 75 Readonly
 
 @175, 250 Button mCalcula;
 Caption 'Calcular'
 
 End Window
-Center Window JCmeta 
+Center Window JCmeta
 Activate Window JCmeta
 
 Return Nil 
 *----------------------*
 Function Fqual(escolheu)
 *----------------------*
+JCmeta.mMeta.value:=""
+JCmeta.mHoras.value:=""
+JCmeta.mPreco.value:=""
+JCmeta.mPrazo.value:=""
+JCmeta.mResultadoP.value:=""
+JCmeta.mResultadoPD.value:=""
+JCmeta.mResultadoH.value:=""
+JCmeta.mResultadoHD.value:=""
+
 If escolheu == 1
 
-	JCmeta.mPreco.Readonly 
-	JCmeta.mCalcula.Action := FCmetaH()
+	JCmeta.mPreco.Readonly := .T.
+	JCmeta.mHoras.Readonly := .F.
+	JCmeta.mCalcula.Action := {||FCmetaH(JCmeta.mMeta.value,JCmeta.mHoras.value,JCmeta.mPrazo.value)}
 
-Elseif escolheu == 2
+Else
 
-	JCmeta.mHoras.Readonly 
-	JCmeta.mCalcula.Action := FCmetaP()
+	JCmeta.mPreco.Readonly := .F.
+	JCmeta.mHoras.Readonly := .T.
+	JCmeta.mCalcula.Action := {||FCmetaP(JCmeta.mMeta.value,JCmeta.mPreco.value,JCmeta.mPrazo.value)}
 
 Endif 
 
-Return 
+Return Nil 
+
 *----------Cálculos e gravações----------*
 
 *----------------------*
-Function FCorc()
+Function FCorc(nPreco, nHora)
 *----------------------*
+Return (str(val(nPreco)* val(nHora)))
+*----------------------*
+Function FCmetaH(nMeta, nHora, nPrazo)
+*----------------------*
+Local vPreco[2]
 
-Return 
-*----------------------*
-Function FCmetaH(cNome, cMeta, nHora, nPrazo)
-*----------------------*
+vPreco[1] := val(nMeta) / val(nHora) 
+vPreco[2] := vPreco[1] / val(nPrazo)
 
-Return 
-*----------------------*
-Function FCmetaP(cNome, cMeta, nPreco, nPrazo)
-*----------------------*
+JCmeta.mResultadoH.value := Alltrim(str(vPreco[1]))
+JCmeta.mResultadoHD.value := Alltrim(str(vPreco[2]))
 
-Return 
+Return Nil
+*----------------------*
+Function FCmetaP(nMeta, nPreco, nPrazo)
+*----------------------*
+Local vHora[2]
+
+vHora[1]:=val(nMeta) / val(nPreco) 
+vHora[2]:=vHora[1] / val(nPrazo)
+
+JCmeta.mResultadoP.value := Alltrim(str(vHora[1]))
+JCmeta.mResultadoPD.value := Alltrim(str(vHora[2]))
+
+Return Nil 
