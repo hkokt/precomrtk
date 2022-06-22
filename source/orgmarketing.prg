@@ -99,7 +99,66 @@ Endif
 MetaDB->(dbSetIndex((CdxMeta)))
 
 Return (.T.)
+*----------------------*
+/*Procedure POsearch(dataIni, dataFin)
+*----------------------*
+Local dataIni 
+Local dataFin 
 
+dataIni := 
+dataFin := 
+
+.deleteallitems	
+
+OrcDB->(OrdSetFocus(1))	
+OrcDB->(DbSeek(DtoS(dataFin),.T.))
+     
+Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof()) 
+     
+	If OrcDB->dataorc > dataFin	
+          OrcDB->(DbSkip())	
+          Loop
+     Endif
+    
+     Add Item{Alltrim((Str(OrcDB->,10,2))),;
+     Alltrim(Str(OrcDB->,10,2)),;
+     Alltrim(Str(OrcDB->,10,2))}to of 
+     
+     BaseMark->(DbSkip())
+     
+Enddo
+     
+Return
+*----------------------*
+Procedure PMsearch(dataIni, dataFin)
+*----------------------*
+Local dataIni 
+Local dataFin 
+
+dataIni := 
+dataFin := 
+
+.deleteallitems	
+
+MetaDB->(OrdSetFocus(1))	
+MetaDB->(DbSeek(DtoS(dataFin),.T.))
+     
+Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
+     
+	If MetaDB->mData > dataFin	
+          MetaDB->(DbSkip())	
+          Loop
+     Endif
+    
+     Add Item{Alltrim((Str(MetaDB->,10,2))),;
+     Alltrim(Str(MetaDB->,10,2)),;
+     Alltrim(Str(MetaDB->,10,2))}to of 
+     
+     MetaDB->(DbSkip())
+     
+Enddo
+     
+Return*/
 *----------------------*
 Procedure Porc()
 *----------------------*
@@ -153,16 +212,6 @@ Activate Window Jmeta
 
 Return Nil
 *----------------------*
-Procedure POsearch()
-*----------------------*
-
-Return
-*----------------------*
-Procedure PMsearch()
-*----------------------*
-
-Return
-*----------------------*
 Procedure PCorc()
 *----------------------*
 Define Window JCorc;
@@ -200,40 +249,36 @@ Title 'Registro de Metas';
 Child;
 Nomaximize;
 Nosize;
-On Init {|| Fqual(JCmeta.mEscolhe.value)}
+On Init {|| Fqualmeta(JCmeta.mEscolhe.value)}
 
-@25,270 Combobox mEscolhe;
+@50,270 Combobox mEscolhe;
 Items{'Hora', 'Preço'};
 Value 1;
 Width 110 Font 'Arial' Size 9 ;
-On Change {|| Fqual(JCmeta.mEscolhe.value)}
+On Change {|| Fqualmeta(JCmeta.mEscolhe.value)}
+@25,270 Label combom Width 200 Height 25 Font 'Arial' Size 9 Bold
 
 @25,50 Label nomeM Width 200 Height 25 Font 'Arial' Size 9 Bold
 @50,50 Textbox mNome Width 200
 
-@75,50 Label meta Width 75 Height 25 Font 'Arial' Size 9 Bold
-@100,50 Textbox mMeta Width 75 Rightalign 
+@80,50 Label meta Width 200 Height 25 Font 'Arial' Size 9 Bold
+@105,75 Textbox mMeta Width 100 Rightalign 
+@105,50 Label rq1 Width 20 Height 25 Font 'Arial' Size 9 Bold
 
-@75, 140 Label prazoM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@100, 140 Textbox mPrazo Width 75 Rightalign 
+@135,50 Label PrazoM Width 200 Height 25 Font 'Arial' Size 9 Bold
+@160,75 Textbox mPrazo Width 75 Rightalign 
+@160,50 Label rq2 Width 25 Height 25 Font 'Arial' Size 9 Bold
+@160,155 Label dias Width 25 Height 25 Font 'Arial' Size 9 Bold
 
-@125,50 Label precoM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@150,50 Textbox mPreco Width 75 Rightalign 
+@190,50 Label PouH Width 200 Height 25 Font 'Arial' Size 9 Bold
+@215,75 Textbox mPouh Width 100 Rightalign 
+@215,50 Label rq3 Width 20 Height 25 Font 'Arial' Size 9 Bold
 
-@175,50 Label resultadopM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@200,50 Textbox mResultadoP Width 75 Readonly Rightalign 
+@240,50 Label resulttudo Width 200 Height 25 Font 'Arial' Size 9 Bold
+@265,50 Textbox mresult Width 200 Readonly Rightalign 
 
-@225,50 Label resultadopdM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@250,50 Textbox mResultadoPD Width 75 Readonly Rightalign 
-
-@125,140 Label horasM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@150,140 Textbox mHoras Width 75 Rightalign 
-
-@225,140 Label resultadohDM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@250,140 Textbox mResultadoHD Width 75 Readonly
-
-@175,140 Label resultadohM Width 75 Height 25 Font 'Arial' Size 9 Bold
-@200,140 Textbox mResultadoH Width 75 Readonly
+@290,50 Label resultdia Width 200 Height 25 Font 'Arial' Size 9 Bold
+@315,50 Textbox mresultd Width 200 Readonly Rightalign 
 
 @175, 250 Button mCalcula;
 Caption 'Calcular'
@@ -244,38 +289,41 @@ Activate Window JCmeta
 
 Return Nil 
 *----------------------*
-Function Fqual(escolheu)
+Function Fqualmeta(escolheu)
 *----------------------*
-JCmeta.nomeM.value:='Digite o nome da meta:'
-JCmeta.meta.value:='Meta:'
-JCmeta.prazoM.value:='Prazo:'
-JCmeta.precoM.value:='Preço:'
-JCmeta.resultadopM.value:='Para meta:'
-JCmeta.resultadopdM.value:='Para meta diária:'
-JCmeta.horasM.value:='Qtd de horas:'
-JCmeta.resultadohDM.value:='Para meta diária:'
-JCmeta.resultadohM.value:='Para meta:'
-
-JCmeta.mMeta.value:=""
-JCmeta.mHoras.value:=""
-JCmeta.mPreco.value:=""
-JCmeta.mPrazo.value:=""
-JCmeta.mResultadoP.value:=""
-JCmeta.mResultadoPD.value:=""
-JCmeta.mResultadoH.value:=""
-JCmeta.mResultadoHD.value:=""
+**Labels 
+JCmeta.combom.value := 'Calcular meta por:'
+JCmeta.nomeM.value := 'Digite um nome para a meta:'
+JCmeta.prazoM.value := 'Prazo:'
+JCmeta.meta.value := 'Meta desejada:'
+JCmeta.rq1.value := 'R$'
+JCmeta.rq2.value := 'Qtd'
+JCmeta.dias.value := 'dias'
+**limpa tb
+JCmeta.mNome.value := ''
+JCmeta.mMeta.value := ''
+JCmeta.mPrazo.value := ''
+JCmeta.mPouh.value := ''
+JCmeta.mresult.value := ''
+JCmeta.mresultd.value := ''
 
 If escolheu == 1
 
-	JCmeta.mPreco.Readonly := .T.
-	JCmeta.mHoras.Readonly := .F.
-	JCmeta.mCalcula.Action := {||FCmetaH(JCmeta.mMeta.value,JCmeta.mHoras.value,JCmeta.mPrazo.value)}
+JCmeta.PouH.value := 'Número de horas pretendidas:'
+Jcmeta.rq3.value := 'Qtd'
+JCmeta.resulttudo.value := 'Preço do total de horas para meta:'
+JCmeta.resultdia.value := 'Arrecadação diária para meta:'
+
+JCmeta.mCalcula.Action := {||FCmetaH(JCmeta.mMeta.value,JCmeta.mPouH.value,JCmeta.mPrazo.value)}
 
 Else
 
-	JCmeta.mPreco.Readonly := .F.
-	JCmeta.mHoras.Readonly := .T.
-	JCmeta.mCalcula.Action := {||FCmetaP(JCmeta.mMeta.value,JCmeta.mPreco.value,JCmeta.mPrazo.value)}
+JCmeta.PouH.value:= 'Valor pretendido por hora: '
+Jcmeta.rq3.value := 'R$'
+JCmeta.resulttudo.value := 'Número total de horas para meta:'
+JCmeta.resultdia.value := 'Horas diárias para meta:'
+
+JCmeta.mCalcula.Action := {||FCmetaP(JCmeta.mMeta.value,JCmeta.mPouH.value,JCmeta.mPrazo.value)}
 
 Endif 
 
@@ -295,8 +343,8 @@ Local vPreco[2]
 vPreco[1] := val(nMeta) / val(nHora) 
 vPreco[2] := vPreco[1] / val(nPrazo)
 
-JCmeta.mResultadoH.value := Alltrim(str(vPreco[1]))
-JCmeta.mResultadoHD.value := Alltrim(str(vPreco[2]))
+JCmeta.mresult.value := Alltrim(str(vPreco[1],10,2)+' R$')
+JCmeta.mresultd.value := Alltrim(str(vPreco[2],10,2)+' R$')
 
 Return Nil
 *----------------------*
@@ -304,10 +352,10 @@ Function FCmetaP(nMeta, nPreco, nPrazo)
 *----------------------*
 Local vHora[2]
 
-vHora[1]:=val(nMeta) / val(nPreco) 
-vHora[2]:=vHora[1] / val(nPrazo)
+vHora[1]:= val(nMeta) / val(nPreco) 
+vHora[2]:= vHora[1] / val(nPrazo)
 
-JCmeta.mResultadoP.value := Alltrim(str(vHora[1]))
-JCmeta.mResultadoPD.value := Alltrim(str(vHora[2]))
+JCmeta.mresult.value  := Alltrim(str(vHora[1],10,0)+ ' horas')
+JCmeta.mresultd.value := Alltrim(str(vHora[2],10,0)+ ' horas')
 
 Return Nil 
