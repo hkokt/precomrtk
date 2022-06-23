@@ -51,7 +51,13 @@ Local CdxOrc := 'indexaorc'
 Local OrcDB := 'OrcDB.DBF'
 
 If ! File (OrcDB)	
-     aadd(Struct, {'b' ,'N' , 19, 4 })
+     aadd(Struct, {'oNome' ,'C' , 150, 0 })
+     aadd(Struct, {'oHporD' ,'N' , 19, 4 })
+     aadd(Struct, {'oPporH' ,'N' , 19, 4 })
+     aadd(Struct, {'oDias' ,'N' , 19, 4 })
+     aadd(Struct, {'oTotalH' ,'N' , 19, 4 })
+     aadd(Struct, {'oAd' ,'N' , 19, 4 })
+     aadd(Struct, {'oValorT' ,'N' , 19, 4 })
      aadd(Struct, {'oHora', 'C' , 8, 0})
      aadd(Struct, {'oData', 'D' , 8, 0})
      DbCreate(OrcDB, Struct, DRIVER)
@@ -79,7 +85,7 @@ Local CdxMeta := 'indexameta'
 Local MetaDB := 'MetaDB.DBF'
 
 If ! File (MetaDB)
-     aadd(Struct,{'a' , 'N' , 19, 4 })
+     aadd(Struct,{'b' , 'N' , 19, 4 })
      aadd(Struct, {'mHora', 'C' , 8, 0})
      aadd(Struct, {'mData', 'D' , 8, 0})
      DbCreate(MetaDB, Struct, DRIVER)
@@ -100,36 +106,34 @@ MetaDB->(dbSetIndex((CdxMeta)))
 
 Return (.T.)
 *----------------------*
-/*Procedure POsearch(dataIni, dataFin)
+Procedure POsearch(dataIni, dataFin)
 *----------------------*
-Local dataIni 
-Local dataFin 
-
-dataIni := 
-dataFin := 
-
-.deleteallitems	
-
+//Jorc.Gorc.deleteallitems
+delete item all from Gorc of Jorc
 OrcDB->(OrdSetFocus(1))	
 OrcDB->(DbSeek(DtoS(dataFin),.T.))
      
 Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof()) 
      
-	If OrcDB->dataorc > dataFin	
-          OrcDB->(DbSkip())	
+	If OrcDB->oData > dataFin	
+          OrcDB->(DbSkip())
           Loop
      Endif
     
-     Add Item{Alltrim((Str(OrcDB->,10,2))),;
-     Alltrim(Str(OrcDB->,10,2)),;
-     Alltrim(Str(OrcDB->,10,2))}to of 
+     Add Item {Alltrim(OrcDB->oNome,150,0),;
+     Alltrim(Str(OrcDB->oHporD,10,0)),;
+     Alltrim('R$' + Str(OrcDB->oPporH,10,2)),;
+     Alltrim(Str(OrcDB->oDias,10,0)),;
+     Alltrim(Str(OrcDB->oTotalH,10,0)),;
+     Alltrim('R$' + Str(OrcDB->oAd,10,2)),;
+     Alltrim('R$' + Str(OrcDB->oValorT,10,2))} To Gorc Of Jorc
      
-     BaseMark->(DbSkip())
+     OrcDB->(DbSkip())
      
 Enddo
      
 Return
-*----------------------*
+/*----------------------*
 Procedure PMsearch(dataIni, dataFin)
 *----------------------*
 Local dataIni 
@@ -164,21 +168,31 @@ Procedure Porc()
 *----------------------*
 Define Window Jorc;
 At 0,0;
-Width 600 Height 500;
+Width 900 Height 600;
 Title 'Orçamentos';
 Child;
 Nomaximize;
 Nosize
 
 @ 10, 10 Grid Gorc;
-Width 350 Height 450;
-Headers {'a'};
-Widths {150}
+Width 700 Height 450;
+Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Qtd. dias', 'Total de horas', 'Adicionais','Valor final'};
+Widths {100,100,100,100,100,100,100};
+JUSTIFY{BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_LEFT}
 
-@50, 400 Button BCorc;
+@50, 750 Button BCorc;
 Caption 'Calcular Orçamento';
 Width 150;
 Action {|| PCorc()}
+
+@100,750 Datepicker d1 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+@135,750 Datepicker d2 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
 
 End Window 
 Center Window Jorc
@@ -216,23 +230,67 @@ Procedure PCorc()
 *----------------------*
 Define Window JCorc;
 At 0,0;
-Width 400 Height 400;
+Width 550 Height 400;
 Title 'Registro de Orçamentos';
 Child;
 Nomaximize;
 Nosize
 
-@25,50 Textbox oNome Width 200
+@25,50 Label nomeO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@50,50 Textbox onNome Width 200
 
-@75,50 Textbox oPreco Width 75
+@95,50 Label horasdiaO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@120,75 Textbox oHoras Width 50 Rightalign
+@120,50 Label realqtd1 Width 25 Height 25 Font 'Arial' Size 9 Bold
+@120,130 Label horash  Width 35 Height 25 Font 'Arial' Size 9 Bold
 
-@125,50 Textbox oHoras Width 75
+@165,50 Label precoO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@190,75 Textbox oPreco Width 75 Rightalign
+@190,50 Label realqtd2 Width 25 Height 25 Font 'Arial' Size 9 Bold
 
-@175,50 Textbox oResultado Width 75 Readonly
+@235,50  Label diasO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@260,75 Textbox oDias Width 50 Rightalign
+@260,50 Label realqtd3 Width 25 Height 25 Font 'Arial' Size 9 Bold
+@260,130 Label diasd Width 25 Height 25 Font 'Arial' Size 9 Bold
 
-@175, 250 Button oCalcula;
+@305,50 Label adicionaO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@330,75 Textbox oAdd Width 50 Rightalign
+@330,50 Label add Width 25 Height 25 Font 'Arial' Size 9 Bold
+
+@95,300 Label tempototalO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@120,300 Textbox oTempo Width 200 Readonly
+
+@165,300 Label resultO Width 200 Height 25 Font 'Arial' Size 9 Bold
+@190,300 Textbox oResultado Width 200 Readonly
+
+@235, 300 Button oCalcula;
 Caption 'Calcular';
-Action {||JCorc.oResultado.value := FCorc(JCorc.oPreco.value, JCorc.oHoras.value)}
+Action {||FCorc(JCorc.oPreco.value,JCorc.oDias.value,JCorc.oHoras.value,JCorc.oAdd.value)}
+
+@260,300 Button oGrava;
+Caption 'Salvar';
+Action {||FCgrava(JCorc.onNome.value,;
+	 JCorc.oHoras.value,;
+	 JCorc.oPreco.value,;
+	 JCorc.oDias.value,;
+	 JCorc.oAdd.value,;
+	 JCorc.oTempo.value,;
+	 JCorc.oResultado.value)}
+
+JCorc.nomeO.value:= 'Digite o nome do cliente:'
+JCorc.horasdiaO.value:= 'Horas estipuladas por dia:'
+JCorc.realqtd1.value := 'Qtd'
+JCorc.precoO.value:= 'Preço por hora de serviço:'
+JCorc.realqtd2.value := ' R$'
+JCorc.diasO.value := 'Qtd. de dias para conclusão:'
+JCorc.realqtd3.value := 'Qtd'
+JCorc.diasd.value := 'dias'
+JCorc.horash.value := 'horas'
+JCorc.adicionaO.value := 'Custos adicionais:'
+JCorc.add.value := 'R$'
+
+JCorc.tempototalO.value := 'Total de horas para o serviço:'
+JCorc.resultO.value:= 'O valor do orçamento é de:'
 
 End Window 
 Center Window JCorc
@@ -244,14 +302,14 @@ Procedure PCmeta()
 *----------------------*
 Define Window JCmeta; 
 At 0,0;
-Width 400 Height 400;
+Width 800 Height 600;
 Title 'Registro de Metas';
 Child;
 Nomaximize;
 Nosize;
 On Init {|| Fqualmeta(JCmeta.mEscolhe.value)}
 
-@50,270 Combobox mEscolhe;
+@50,300 Combobox mEscolhe;
 Items{'Hora', 'Preço'};
 Value 1;
 Width 110 Font 'Arial' Size 9 ;
@@ -261,26 +319,26 @@ On Change {|| Fqualmeta(JCmeta.mEscolhe.value)}
 @25,50 Label nomeM Width 200 Height 25 Font 'Arial' Size 9 Bold
 @50,50 Textbox mNome Width 200
 
-@80,50 Label meta Width 200 Height 25 Font 'Arial' Size 9 Bold
-@105,75 Textbox mMeta Width 100 Rightalign 
-@105,50 Label rq1 Width 20 Height 25 Font 'Arial' Size 9 Bold
+@95,50 Label meta Width 200 Height 25 Font 'Arial' Size 9 Bold
+@120,75 Textbox mMeta Width 100 Rightalign 
+@120,50 Label rq1 Width 20 Height 25 Font 'Arial' Size 9 Bold
 
-@135,50 Label PrazoM Width 200 Height 25 Font 'Arial' Size 9 Bold
-@160,75 Textbox mPrazo Width 75 Rightalign 
-@160,50 Label rq2 Width 25 Height 25 Font 'Arial' Size 9 Bold
-@160,155 Label dias Width 25 Height 25 Font 'Arial' Size 9 Bold
+@165,50 Label PrazoM Width 200 Height 25 Font 'Arial' Size 9 Bold
+@190,75 Textbox mPrazo Width 75 Rightalign 
+@190,50 Label rq2 Width 25 Height 25 Font 'Arial' Size 9 Bold
+@190,155 Label dias Width 25 Height 25 Font 'Arial' Size 9 Bold
 
-@190,50 Label PouH Width 200 Height 25 Font 'Arial' Size 9 Bold
-@215,75 Textbox mPouh Width 100 Rightalign 
-@215,50 Label rq3 Width 20 Height 25 Font 'Arial' Size 9 Bold
+@235,50 Label PouH Width 200 Height 25 Font 'Arial' Size 9 Bold
+@260,75 Textbox mPouh Width 100 Rightalign 
+@260,50 Label rq3 Width 20 Height 25 Font 'Arial' Size 9 Bold
 
-@240,50 Label resulttudo Width 200 Height 25 Font 'Arial' Size 9 Bold
-@265,50 Textbox mresult Width 200 Readonly Rightalign 
+@95,300 Label resulttudo Width 300 Height 25 Font 'Arial' Size 9 Bold
+@120,300 Textbox mresult Width 200 Readonly Rightalign 
 
-@290,50 Label resultdia Width 200 Height 25 Font 'Arial' Size 9 Bold
-@315,50 Textbox mresultd Width 200 Readonly Rightalign 
+@165,300 Label resultdia Width 300 Height 25 Font 'Arial' Size 9 Bold
+@190,300 Textbox mresultd Width 200 Readonly Rightalign 
 
-@175, 250 Button mCalcula;
+@250,300 Button mCalcula;
 Caption 'Calcular'
 
 End Window
@@ -311,8 +369,8 @@ If escolheu == 1
 
 JCmeta.PouH.value := 'Número de horas pretendidas:'
 Jcmeta.rq3.value := 'Qtd'
-JCmeta.resulttudo.value := 'Preço do total de horas para meta:'
-JCmeta.resultdia.value := 'Arrecadação diária para meta:'
+JCmeta.resulttudo.value := 'Meta de valor por hora:'
+JCmeta.resultdia.value := 'Meta diária de "arrecadação":'
 
 JCmeta.mCalcula.Action := {||FCmetaH(JCmeta.mMeta.value,JCmeta.mPouH.value,JCmeta.mPrazo.value)}
 
@@ -320,8 +378,8 @@ Else
 
 JCmeta.PouH.value:= 'Valor pretendido por hora: '
 Jcmeta.rq3.value := 'R$'
-JCmeta.resulttudo.value := 'Número total de horas para meta:'
-JCmeta.resultdia.value := 'Horas diárias para meta:'
+JCmeta.resulttudo.value := 'Meta de número de horas trabalhadas:'
+JCmeta.resultdia.value := 'Meta diária de horas:'
 
 JCmeta.mCalcula.Action := {||FCmetaP(JCmeta.mMeta.value,JCmeta.mPouH.value,JCmeta.mPrazo.value)}
 
@@ -332,9 +390,17 @@ Return Nil
 *----------Cálculos e gravações----------*
 
 *----------------------*
-Function FCorc(nPreco, nHora)
+Function FCorc(nPreco,nDia,nHora,nAdd)
 *----------------------*
-Return (str(val(nPreco)* val(nHora)))
+Local Orca[2]
+
+Orca[1]:= val(nDia) * val(nHora)
+Orca[2]:= val(nAdd) + (val(nPreco)* Orca[1])
+
+JCorc.oTempo.value := Alltrim(str(Orca[1],10,0)+' horas')
+JCorc.oResultado.value := Alltrim(str(Orca[2],10,2)+' R$')
+
+Return 
 *----------------------*
 Function FCmetaH(nMeta, nHora, nPrazo)
 *----------------------*
@@ -359,3 +425,19 @@ JCmeta.mresult.value  := Alltrim(str(vHora[1],10,0)+ ' horas')
 JCmeta.mresultd.value := Alltrim(str(vHora[2],10,0)+ ' horas')
 
 Return Nil 
+
+Function FCgrava(cNome,nHD,nPH,nDias,nTH,nAd,nValt)
+OrcDB->(Ordsetfocus(1))
+OrcDB->(DbAppend())
+
+OrcDB->oNome := cNome
+OrcDB->oHporD := val(nHD)
+OrcDB->oPporH := val(nPH)
+OrcDB->oDias := val(nDias)
+OrcDB->oTotalH := val(nTH)
+OrcDB->oAd := val(nAd)
+OrcDB->oValorT := val(nValt)  
+OrcDB->oHora := Time()
+OrcDB->oData := Date()
+
+Return Nil
