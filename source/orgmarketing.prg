@@ -85,9 +85,18 @@ Local CdxMeta := 'indexameta'
 Local MetaDB := 'MetaDB.DBF'
 
 If ! File (MetaDB)
-     aadd(Struct,{'b' , 'N' , 19, 4 })
+     aadd(Struct,{'meNome' , 'C' , 150, 0 })
+     aadd(Struct,{'meMeta' , 'N' , 19, 4 })
+     aadd(Struct,{'mePrazo' , 'N' , 19, 4 })
+     aadd(Struct,{'mNhoras' , 'N' , 19, 4 })
+     aadd(Struct,{'mVhora' , 'N' , 19, 4 })
+     aadd(Struct,{'mVdias' , 'N' , 19, 4 })
+     aadd(Struct,{'mNvalor' , 'N' , 19, 4 })
+     aadd(Struct,{'mHhora' , 'N' , 19, 4 })
+     aadd(Struct,{'mHdias' , 'N' , 19, 4 })
      aadd(Struct, {'mHora', 'C' , 8, 0})
      aadd(Struct, {'mData', 'D' , 8, 0})
+     aadd(Struct, {'HouV', 'C' , 1, 0})
      DbCreate(MetaDB, Struct, DRIVER)
 Endif
 
@@ -106,10 +115,45 @@ MetaDB->(dbSetIndex((CdxMeta)))
 
 Return (.T.)
 *----------------------*
+Procedure Porc()
+*----------------------*
+Define Window Jorc;
+At 0,0;
+Width 950 Height 500;
+Title 'Orçamentos';
+Child;
+Nomaximize;
+Nosize
+
+@ 10, 10 Grid Gorc;
+Width 700 Height 450;
+Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Qtd. dias', 'Total de horas', 'Adicionais','Valor final'};
+Widths {100,100,100,100,100,100,100};
+JUSTIFY{BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_LEFT}
+
+@50, 750 Button BCorc;
+Caption 'Novo Orçamento';
+Width 150;
+Action {|| PCorc()}
+
+@100,750 Datepicker d1 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+@135,750 Datepicker d2 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+
+End Window 
+Center Window Jorc
+Activate Window Jorc 
+
+Return Nil
+*----------------------*
 Procedure POsearch(dataIni, dataFin)
 *----------------------*
-//Jorc.Gorc.deleteallitems
-delete item all from Gorc of Jorc
+Jorc.Gorc.DeleteAllItems
 OrcDB->(OrdSetFocus(1))	
 OrcDB->(DbSeek(DtoS(dataFin),.T.))
      
@@ -133,98 +177,128 @@ Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof())
 Enddo
      
 Return
-/*----------------------*
-Procedure PMsearch(dataIni, dataFin)
-*----------------------*
-Local dataIni 
-Local dataFin 
-
-dataIni := 
-dataFin := 
-
-.deleteallitems	
-
-MetaDB->(OrdSetFocus(1))	
-MetaDB->(DbSeek(DtoS(dataFin),.T.))
-     
-Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
-     
-	If MetaDB->mData > dataFin	
-          MetaDB->(DbSkip())	
-          Loop
-     Endif
-    
-     Add Item{Alltrim((Str(MetaDB->,10,2))),;
-     Alltrim(Str(MetaDB->,10,2)),;
-     Alltrim(Str(MetaDB->,10,2))}to of 
-     
-     MetaDB->(DbSkip())
-     
-Enddo
-     
-Return*/
-*----------------------*
-Procedure Porc()
-*----------------------*
-Define Window Jorc;
-At 0,0;
-Width 900 Height 600;
-Title 'Orçamentos';
-Child;
-Nomaximize;
-Nosize
-
-@ 10, 10 Grid Gorc;
-Width 700 Height 450;
-Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Qtd. dias', 'Total de horas', 'Adicionais','Valor final'};
-Widths {100,100,100,100,100,100,100};
-JUSTIFY{BROWSE_JTFY_LEFT,;
-	BROWSE_JTFY_CENTER,;
-	BROWSE_JTFY_LEFT,;
-	BROWSE_JTFY_CENTER,;
-	BROWSE_JTFY_CENTER,;
-	BROWSE_JTFY_LEFT,;
-	BROWSE_JTFY_LEFT}
-
-@50, 750 Button BCorc;
-Caption 'Calcular Orçamento';
-Width 150;
-Action {|| PCorc()}
-
-@100,750 Datepicker d1 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
-@135,750 Datepicker d2 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
-
-End Window 
-Center Window Jorc
-Activate Window Jorc 
-
-Return Nil
 *----------------------*
 Procedure Pmeta()
 *----------------------*
 Define Window Jmeta;
 At 0,0;
-Width 600 Height 500;
+Width 1000 Height 550;
 Title 'Metas';
 Child;
 Nomaximize;
-Nosize
+Nosize;
+On Init {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
 @ 10, 10 Grid Gmeta;
-Width 350 Height 450;
-Headers {'a'};
-Widths {150}
+Width 800 Height 450;
+Headers {'','','','','','',''};
+Widths {150,100,100,100,100,150,100};
+JUSTIFY{BROWSE_JTFY_LEFT,;
+	BROWSE_JTFY_RIGHT,;
+	BROWSE_JTFY_RIGHT,;
+	BROWSE_JTFY_RIGHT,;
+	BROWSE_JTFY_RIGHT,;
+	BROWSE_JTFY_RIGHT,;
+	BROWSE_JTFY_RIGHT}
 
-@50, 400 Button BCmeta;
-Caption 'Calcular Meta';
+@50, 800 Button BCmeta;
+Caption 'Nova Meta';
 Width 150;
 Action {|| PCmeta()}
+
+@100,850 Combobox escolhemostra;
+Items{'Hora', 'Preço'};
+Value 1;
+Width 110 Font 'Arial' Size 9 ;
+On Change {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+
+@150,750 Datepicker dm1 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+@185,750 Datepicker dm2 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
 End Window 
 Center Window Jmeta 
 Activate Window Jmeta 
 
 Return Nil
+*----------------------*
+Procedure PMsearch(dataIni, dataFin, qualmostra)
+*----------------------*
+Jmeta.Gmeta.header(1):= 'Nome'
+Jmeta.Gmeta.header(2):= 'Meta'
+Jmeta.Gmeta.header(3):= 'Data'
+Jmeta.Gmeta.header(4):= 'Prazo'
+
+If qualmostra == 1
+
+Jmeta.Gmeta.header(5):= 'Horas pretendidas'
+Jmeta.Gmeta.header(6):= 'Meta Preço/Hora'
+Jmeta.Gmeta.header(7):= 'Meta diária'
+Jmeta.Gmeta.DeleteAllItems
+MetaDB->(OrdSetFocus(1))
+MetaDB->(DbSeek(DtoS(dataFin),.T.))
+     
+Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
+     
+	If MetaDB->mData > dataFin
+          MetaDB->(DbSkip())
+          Loop
+     Endif
+    
+     If MetaDB->HouV == 'H'
+     
+     Add Item{Alltrim((Str(MetaDB->meNome,150,0))),;
+     Alltrim('R$' + Str(MetaDB->meMeta,10,2)),;
+     Alltrim(Str(MetaDB->mData,8,0)),;
+     Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
+     Alltrim(Str(MetaDB->mNhoras,10,0)),;
+     Alltrim('R$' + Str(MetaDB->mVhora,10,2)),;
+     Alltrim(Str(MetaDB->mVdias,10,0))}to Gmeta of Jmeta
+     
+     MetaDB->(DbSkip())
+     
+     Else 
+     
+	 MetaDB->(DbSkip())
+	 
+	 Endif  
+Enddo
+
+Else
+
+Jmeta.Gmeta.header(5):= 'Valor pretendido'
+Jmeta.Gmeta.header(6):= 'Meta de horas'
+Jmeta.Gmeta.header(7):= 'Meta diária'
+Jmeta.Gmeta.DeleteAllItems
+MetaDB->(OrdSetFocus(1))	
+MetaDB->(DbSeek(DtoS(dataFin),.T.))     
+Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
+     
+	If MetaDB->mData > dataFin
+          MetaDB->(DbSkip())
+          Loop
+     Endif
+     
+     If MetaDB->HouV == 'V'
+    
+     Add Item{Alltrim((Str(MetaDB->meNome,150,0))),;
+     Alltrim('R$ ' + Str(MetaDB->meMeta,10,2)),;
+     Alltrim(Str(MetaDB->mData,8,0)),;
+     Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
+     Alltrim('R$ ' + Str(MetaDB->mNvalor,10,2)),;
+     Alltrim(Str(MetaDB->mHhoras,10,0)),;
+     Alltrim(Str(MetaDB->mHdias,10,0))}to Gmeta of Jmeta
+      
+     MetaDB->(DbSkip())
+     
+     Else 
+     
+	 MetaDB->(DbSkip())
+	 
+	 Endif 
+Enddo
+Endif
+
+Return
 *----------------------*
 Procedure PCorc()
 *----------------------*
@@ -263,13 +337,13 @@ Nosize
 @165,300 Label resultO Width 200 Height 25 Font 'Arial' Size 9 Bold
 @190,300 Textbox oResultado Width 200 Readonly
 
-@235, 300 Button oCalcula;
+@50, 300 Button oCalcula;
 Caption 'Calcular';
 Action {||FCorc(JCorc.oPreco.value,JCorc.oDias.value,JCorc.oHoras.value,JCorc.oAdd.value)}
 
-@260,300 Button oGrava;
+@50,415 Button oGrava;
 Caption 'Salvar';
-Action {||FCgrava(JCorc.onNome.value,;
+Action {||FCOgrava(JCorc.onNome.value,;
 	 JCorc.oHoras.value,;
 	 JCorc.oPreco.value,;
 	 JCorc.oDias.value,;
@@ -341,6 +415,16 @@ On Change {|| Fqualmeta(JCmeta.mEscolhe.value)}
 @250,300 Button mCalcula;
 Caption 'Calcular'
 
+@300,300 Button mgrava;
+Caption 'Salvar';
+Action {||FCMgrava(JCmeta.mNome.value,;
+JCmeta.mMeta.value,;
+JCmeta.mPrazo.value,;
+JCmeta.mPouh.value,;
+JCmeta.mresult.value,;
+JCmeta.mresultd.value,;
+JCmeta.mEscolhe.value)}
+
 End Window
 Center Window JCmeta
 Activate Window JCmeta
@@ -392,13 +476,13 @@ Return Nil
 *----------------------*
 Function FCorc(nPreco,nDia,nHora,nAdd)
 *----------------------*
-Local Orca[2]
+Local vOrc[2]
 
-Orca[1]:= val(nDia) * val(nHora)
-Orca[2]:= val(nAdd) + (val(nPreco)* Orca[1])
+vOrc[1]:= val(nDia) * val(nHora)
+vOrc[2]:= val(nAdd) + (val(nPreco)* vOrc[1])
 
-JCorc.oTempo.value := Alltrim(str(Orca[1],10,0)+' horas')
-JCorc.oResultado.value := Alltrim(str(Orca[2],10,2)+' R$')
+JCorc.oTempo.value := Alltrim(str(vOrc[1],10,0)+' horas')
+JCorc.oResultado.value := Alltrim(str(vOrc[2],10,2)+' R$')
 
 Return 
 *----------------------*
@@ -425,12 +509,13 @@ JCmeta.mresult.value  := Alltrim(str(vHora[1],10,0)+ ' horas')
 JCmeta.mresultd.value := Alltrim(str(vHora[2],10,0)+ ' horas')
 
 Return Nil 
-
-Function FCgrava(cNome,nHD,nPH,nDias,nTH,nAd,nValt)
+*----------------------*
+Function FCOgrava(cNome,nHD,nPH,nDias,nTH,nAd,nValt)
+*----------------------*
 OrcDB->(Ordsetfocus(1))
 OrcDB->(DbAppend())
 
-OrcDB->oNome := cNome
+OrcDB->oNome := Alltrim(cNome)
 OrcDB->oHporD := val(nHD)
 OrcDB->oPporH := val(nPH)
 OrcDB->oDias := val(nDias)
@@ -439,5 +524,41 @@ OrcDB->oAd := val(nAd)
 OrcDB->oValorT := val(nValt)  
 OrcDB->oHora := Time()
 OrcDB->oData := Date()
+
+Return Nil
+*----------------------*
+Function FCMgrava(cNome,nMeta,nPrazo,nPretend,nResult1,nResult2,Gravaonde)
+*----------------------*
+If Gravaonde == 1
+
+MetaDB->(Ordsetfocus(1))
+MetaDB->(DbAppend())
+
+MetaDB->meNome := Alltrim(cNome)
+MetaDB->meMeta := Val(nMeta)
+MetaDB->mePrazo := Val(nPrazo)
+MetaDB->mNhoras := Val(nPretend)
+MetaDB->mVhora := Val(nResult1)
+MetaDB->mVdias := Val(nResult2)
+MetaDB->mHora := Time()
+MetaDB->mData := Date() 
+MetaDB->HouV := 'H'
+
+Else
+
+MetaDB->(Ordsetfocus(1))
+MetaDB->(DbAppend())
+
+MetaDB->meNome := Alltrim(cNome)
+MetaDB->meMeta := Val(nMeta)
+MetaDB->mePrazo := Val(nPrazo)
+MetaDB->mNvalor:= Val(nPretend)
+MetaDB->mHhora := Val(nResult1)
+MetaDB->mHdias := Val(nResult2)
+MetaDB->mHora := Time()
+MetaDB->mData := Date() 
+MetaDB->HouV := 'V'
+
+Endif
 
 Return Nil
