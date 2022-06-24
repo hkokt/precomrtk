@@ -349,7 +349,7 @@ Action {||FCOgrava(JCorc.onNome.value,;
 	 JCorc.oDias.value,;
 	 JCorc.oAdd.value,;
 	 JCorc.oTempo.value,;
-	 JCorc.oResultado.value)}
+	 JCorc.oResultado.value),JCorc.release}
 
 JCorc.nomeO.value:= 'Digite o nome do cliente:'
 JCorc.horasdiaO.value:= 'Horas estipuladas por dia:'
@@ -423,7 +423,7 @@ JCmeta.mPrazo.value,;
 JCmeta.mPouh.value,;
 JCmeta.mresult.value,;
 JCmeta.mresultd.value,;
-JCmeta.mEscolhe.value)}
+JCmeta.mEscolhe.value), JCmeta.release}
 
 End Window
 Center Window JCmeta
@@ -525,7 +525,7 @@ OrcDB->oValorT := val(nValt)
 OrcDB->oHora := Time()
 OrcDB->oData := Date()
 
-Return Nil
+Return Msginfo('OrçAmento salvo com sucesso!')
 *----------------------*
 Function FCMgrava(cNome,nMeta,nPrazo,nPretend,nResult1,nResult2,Gravaonde)
 *----------------------*
@@ -561,4 +561,4 @@ MetaDB->HouV := 'V'
 
 Endif
 
-Return Nil
+Return Msginfo('Meta salva com sucesso!')
