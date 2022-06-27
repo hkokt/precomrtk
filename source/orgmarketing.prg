@@ -154,7 +154,7 @@ Return Nil
 Procedure POsearch(dataIni, dataFin)
 *----------------------*
 Jorc.Gorc.DeleteAllItems
-OrcDB->(OrdSetFocus(1))	
+OrcDB->(OrdSetFocus(1))
 OrcDB->(DbSeek(DtoS(dataFin),.T.))
      
 Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof()) 
@@ -182,7 +182,7 @@ Procedure Pmeta()
 *----------------------*
 Define Window Jmeta;
 At 0,0;
-Width 1000 Height 550;
+Width 1050 Height 500;
 Title 'Metas';
 Child;
 Nomaximize;
@@ -190,30 +190,30 @@ Nosize;
 On Init {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
 @ 10, 10 Grid Gmeta;
-Width 800 Height 450;
+Width 832 Height 450;
 Headers {'','','','','','',''};
-Widths {150,100,100,100,100,150,100};
+Widths {150,100,100,100,130,150,100};
 JUSTIFY{BROWSE_JTFY_LEFT,;
-	BROWSE_JTFY_RIGHT,;
-	BROWSE_JTFY_RIGHT,;
-	BROWSE_JTFY_RIGHT,;
-	BROWSE_JTFY_RIGHT,;
-	BROWSE_JTFY_RIGHT,;
-	BROWSE_JTFY_RIGHT}
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER}
 
-@50, 800 Button BCmeta;
+@50, 870 Button BCmeta;
 Caption 'Nova Meta';
 Width 150;
 Action {|| PCmeta()}
 
-@100,850 Combobox escolhemostra;
+@100,870 Combobox escolhemostra;
 Items{'Hora', 'Preço'};
 Value 1;
 Width 110 Font 'Arial' Size 9 ;
 On Change {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
-@150,750 Datepicker dm1 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
-@185,750 Datepicker dm2 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+@150,870 Datepicker dm1 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+@185,870 Datepicker dm2 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
 End Window 
 Center Window Jmeta 
@@ -245,22 +245,23 @@ Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof())
      Endif
     
      If MetaDB->HouV == 'H'
-     
-     Add Item{Alltrim((Str(MetaDB->meNome,150,0))),;
+	 
+     Add Item{Alltrim(MetaDB->meNome,150,0),;
      Alltrim('R$' + Str(MetaDB->meMeta,10,2)),;
-     Alltrim(Str(MetaDB->mData,8,0)),;
+     Dtoc(MetaDB->mData),;
      Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
      Alltrim(Str(MetaDB->mNhoras,10,0)),;
      Alltrim('R$' + Str(MetaDB->mVhora,10,2)),;
-     Alltrim(Str(MetaDB->mVdias,10,0))}to Gmeta of Jmeta
+     Alltrim('R$' + Str(MetaDB->mVdias,10,2))}to Gmeta of Jmeta
+	
+     MetaDB->(DbSkip())
+     
+     Else
      
      MetaDB->(DbSkip())
      
-     Else 
-     
-	 MetaDB->(DbSkip())
-	 
-	 Endif  
+     Endif
+
 Enddo
 
 Else
@@ -280,21 +281,21 @@ Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof())
      
      If MetaDB->HouV == 'V'
     
-     Add Item{Alltrim((Str(MetaDB->meNome,150,0))),;
+     Add Item{Alltrim(MetaDB->meNome,150,0),;
      Alltrim('R$ ' + Str(MetaDB->meMeta,10,2)),;
-     Alltrim(Str(MetaDB->mData,8,0)),;
+     Dtoc(MetaDB->mData),;
      Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
      Alltrim('R$ ' + Str(MetaDB->mNvalor,10,2)),;
-     Alltrim(Str(MetaDB->mHhoras,10,0)),;
+     Alltrim(Str(MetaDB->mHhora,10,0)),;
      Alltrim(Str(MetaDB->mHdias,10,0))}to Gmeta of Jmeta
       
      MetaDB->(DbSkip())
      
-     Else 
+     Else
      
-	 MetaDB->(DbSkip())
-	 
-	 Endif 
+     MetaDB->(DbSkip())
+     
+     Endif
 Enddo
 Endif
 
@@ -376,7 +377,7 @@ Procedure PCmeta()
 *----------------------*
 Define Window JCmeta; 
 At 0,0;
-Width 800 Height 600;
+Width 550 Height 400;
 Title 'Registro de Metas';
 Child;
 Nomaximize;
@@ -388,7 +389,7 @@ Items{'Hora', 'Preço'};
 Value 1;
 Width 110 Font 'Arial' Size 9 ;
 On Change {|| Fqualmeta(JCmeta.mEscolhe.value)}
-@25,270 Label combom Width 200 Height 25 Font 'Arial' Size 9 Bold
+@25,300 Label combom Width 200 Height 25 Font 'Arial' Size 9 Bold
 
 @25,50 Label nomeM Width 200 Height 25 Font 'Arial' Size 9 Bold
 @50,50 Textbox mNome Width 200
@@ -406,16 +407,16 @@ On Change {|| Fqualmeta(JCmeta.mEscolhe.value)}
 @260,75 Textbox mPouh Width 100 Rightalign 
 @260,50 Label rq3 Width 20 Height 25 Font 'Arial' Size 9 Bold
 
-@95,300 Label resulttudo Width 300 Height 25 Font 'Arial' Size 9 Bold
-@120,300 Textbox mresult Width 200 Readonly Rightalign 
+@165,300 Label resulttudo Width 300 Height 25 Font 'Arial' Size 9 Bold
+@190,300 Textbox mresult Width 200 Readonly Rightalign 
 
-@165,300 Label resultdia Width 300 Height 25 Font 'Arial' Size 9 Bold
-@190,300 Textbox mresultd Width 200 Readonly Rightalign 
+@235,300 Label resultdia Width 300 Height 25 Font 'Arial' Size 9 Bold
+@260,300 Textbox mresultd Width 200 Readonly Rightalign 
 
-@250,300 Button mCalcula;
+@120,300 Button mCalcula;
 Caption 'Calcular'
 
-@300,300 Button mgrava;
+@120,415 Button mgrava;
 Caption 'Salvar';
 Action {||FCMgrava(JCmeta.mNome.value,;
 JCmeta.mMeta.value,;
@@ -451,7 +452,7 @@ JCmeta.mresultd.value := ''
 
 If escolheu == 1
 
-JCmeta.PouH.value := 'Número de horas pretendidas:'
+JCmeta.PouH.value := 'Horas pretendidas por dia:'
 Jcmeta.rq3.value := 'Qtd'
 JCmeta.resulttudo.value := 'Meta de valor por hora:'
 JCmeta.resultdia.value := 'Meta diária de "arrecadação":'
@@ -488,13 +489,14 @@ Return
 *----------------------*
 Function FCmetaH(nMeta, nHora, nPrazo)
 *----------------------*
-Local vPreco[2]
+Local vPreco[3]
 
-vPreco[1] := val(nMeta) / val(nHora) 
-vPreco[2] := vPreco[1] / val(nPrazo)
+vPreco[1] := val(nHora) * val(nPrazo)
+vPreco[2] := val(nMeta) / val(nHora) 
+vPreco[3] := vPreco[2] / val(nPrazo)
 
-JCmeta.mresult.value := Alltrim(str(vPreco[1],10,2)+' R$')
-JCmeta.mresultd.value := Alltrim(str(vPreco[2],10,2)+' R$')
+JCmeta.mresult.value := Alltrim(str(vPreco[2],10,2)+' reais')
+JCmeta.mresultd.value := Alltrim(str(vPreco[3],10,2)+' reais')
 
 Return Nil
 *----------------------*
