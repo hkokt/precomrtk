@@ -31,12 +31,12 @@ Nosize
 @100,50 Button Borc;
 Caption 'Orçamentos'; 
 Width 100 Height 100;
-Action {|| Porc() }
+Action {|| Porc()}
 
 @100,155 Button Bmeta;
 Caption 'Metas';
 Width 100 Height 100;
-Action {|| Pmeta() }
+Action {|| Pmeta()}
 
 End Window 
 Center Window Jprinc
@@ -127,7 +127,7 @@ Nosize
 
 @ 10, 10 Grid Gorc;
 Width 700 Height 450;
-Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Qtd. dias', 'Total de horas', 'Adicionais','Valor final'};
+Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Prazo', 'Total de horas', 'Adicionais','Valor final'};
 Widths {100,100,100,100,100,100,100};
 JUSTIFY{BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
@@ -168,7 +168,7 @@ Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof())
      Alltrim(Str(OrcDB->oHporD,10,0)),;
      Alltrim('R$' + Str(OrcDB->oPporH,10,2)),;
      Alltrim(Str(OrcDB->oDias,10,0)),;
-     Alltrim(Str(OrcDB->oTotalH,10,0)),;
+     Alltrim(Str(OrcDB->oTotalH,10,2)),;
      Alltrim('R$' + Str(OrcDB->oAd,10,2)),;
      Alltrim('R$' + Str(OrcDB->oValorT,10,2))} To Gorc Of Jorc
      
@@ -249,8 +249,8 @@ Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof())
      Add Item{Alltrim(MetaDB->meNome,150,0),;
      Alltrim('R$' + Str(MetaDB->meMeta,10,2)),;
      Dtoc(MetaDB->mData),;
-     Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
-     Alltrim(Str(MetaDB->mNhoras,10,0)),;
+     Alltrim(Str(MetaDB->mePrazo,10,2)+' dias'),;
+     Alltrim(Str(MetaDB->mNhoras,10,2) + ' horas/dia'),;
      Alltrim('R$' + Str(MetaDB->mVhora,10,2)),;
      Alltrim('R$' + Str(MetaDB->mVdias,10,2))}to Gmeta of Jmeta
 	
@@ -286,8 +286,8 @@ Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof())
      Dtoc(MetaDB->mData),;
      Alltrim(Str(MetaDB->mePrazo,10,0)+' dias'),;
      Alltrim('R$ ' + Str(MetaDB->mNvalor,10,2)),;
-     Alltrim(Str(MetaDB->mHhora,10,0)),;
-     Alltrim(Str(MetaDB->mHdias,10,0))}to Gmeta of Jmeta
+     Alltrim(Str(MetaDB->mHhora,10,2) + ' horas'),;
+     Alltrim(Str(MetaDB->mHdias,10,2)+ ' horas')}to Gmeta of Jmeta
       
      MetaDB->(DbSkip())
      
@@ -482,7 +482,7 @@ Local vOrc[2]
 vOrc[1]:= val(nDia) * val(nHora)
 vOrc[2]:= val(nAdd) + (val(nPreco)* vOrc[1])
 
-JCorc.oTempo.value := Alltrim(str(vOrc[1],10,0)+' horas')
+JCorc.oTempo.value := Alltrim(str(vOrc[1],10,2)+' horas')
 JCorc.oResultado.value := Alltrim(str(vOrc[2],10,2)+' R$')
 
 Return 
@@ -507,8 +507,8 @@ Local vHora[2]
 vHora[1]:= val(nMeta) / val(nPreco) 
 vHora[2]:= vHora[1] / val(nPrazo)
 
-JCmeta.mresult.value  := Alltrim(str(vHora[1],10,0)+ ' horas')
-JCmeta.mresultd.value := Alltrim(str(vHora[2],10,0)+ ' horas')
+JCmeta.mresult.value  := Alltrim(str(vHora[1],10,2)+ ' horas')
+JCmeta.mresultd.value := Alltrim(str(vHora[2],10,2)+ ' horas')
 
 Return Nil 
 *----------------------*
