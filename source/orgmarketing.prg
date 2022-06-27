@@ -442,7 +442,7 @@ JCmeta.meta.value := 'Meta desejada:'
 JCmeta.rq1.value := 'R$'
 JCmeta.rq2.value := 'Qtd'
 JCmeta.dias.value := 'dias'
-**limpa tb
+**zera tudo
 JCmeta.mNome.value := ''
 JCmeta.mMeta.value := ''
 JCmeta.mPrazo.value := ''
