@@ -491,12 +491,12 @@ Function FCmetaH(nMeta, nHora, nPrazo)
 *----------------------*
 Local vPreco[3]
 
-vPreco[1] := val(nHora) * val(nPrazo)
-vPreco[2] := val(nMeta) / val(nHora) 
-vPreco[3] := vPreco[2] / val(nPrazo)
+vPreco[1] := val(nHora) * val(nPrazo) /*total horas*/ 
+vPreco[2] := val(nMeta) / vPreco[1] /*valor por hora*/
+vPreco[3] := val(nMeta)/ val(nPrazo) /*meta diária*/
 
-JCmeta.mresult.value := Alltrim(str(vPreco[2],10,2)+' reais')
-JCmeta.mresultd.value := Alltrim(str(vPreco[3],10,2)+' reais')
+JCmeta.mresult.value := Alltrim(str(vPreco[2],10,2)+' R$')
+JCmeta.mresultd.value := Alltrim(str(vPreco[3],10,2)+' R$')
 
 Return Nil
 *----------------------*
