@@ -72,6 +72,7 @@ Endif
 
 If ! File (CdxOrc + ".cdx")
      Index on Descend(Dtos(oData)) + Descend(oHora) Tag tempo to (CdxOrc)
+     Index on oNome Tag alfa to (CdxOrc)
 Endif 
 
 OrcDB->(dbSetIndex((CdxOrc)))
@@ -109,6 +110,7 @@ Endif
 
 If ! File (CdxMeta + ".cdx")
      Index on Descend(Dtos(mData)) + Descend(mHora) Tag tempo to (CdxMeta)
+     Index on meNome Tag alfabet to (CdxMeta)
 Endif 
 
 MetaDB->(dbSetIndex((CdxMeta)))
@@ -119,7 +121,7 @@ Procedure Porc()
 *----------------------*
 Define Window Jorc;
 At 0,0;
-Width 950 Height 500;
+Width 900 Height 500;
 Title 'Orçamentos';
 Child;
 Nomaximize;
@@ -127,7 +129,7 @@ Nosize
 
 @ 10, 10 Grid Gorc;
 Width 700 Height 450;
-Headers {'Cliente', 'Horas por dia', 'Preço por hora', 'Prazo', 'Total de horas', 'Adicionais','Valor final'};
+Headers {'', '', '', '', '', '',''};
 Widths {100,100,100,100,100,100,100};
 JUSTIFY{BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
@@ -136,14 +138,37 @@ JUSTIFY{BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
 	BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_LEFT}
-
-@50, 750 Button BCorc;
+	
+Jorc.Gorc.header(1):= 'Cliente'
+Jorc.Gorc.header(2):= 'Horas por dia'
+Jorc.Gorc.header(3):= 'Preço por hora'
+Jorc.Gorc.header(4):= 'Prazo'
+Jorc.Gorc.header(5):= 'Total de horas'
+Jorc.Gorc.header(6):= 'Adicionais'
+Jorc.Gorc.header(7):= 'Valor final'
+	
+@50, 740 Button BCorc;
 Caption 'Novo Orçamento';
-Width 150;
+Width 130;
 Action {|| PCorc()}
 
-@100,750 Datepicker d1 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
-@135,750 Datepicker d2 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+@200,720 Frame tudopesq Caption 'Filtros de pesquisa' Width 160 Height 235 Transparent
+
+@220,740 Label nomealfa1 value 'Organizar por: '
+@240,740 Combobox alfanome1;
+Items{'Último registro', 'Ordem alfabética'};
+Value 1;
+Width 120 Font 'Arial' Size 9 
+
+@275,730 Frame fosearch1 caption 'Período de' Width 140 Height 100 Transparent
+@300,740 Datepicker d1 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+@325,745 Label osearch2 value 'à' Width 200 Height 25 Font 'Arial' Size 9
+@345,740 Datepicker d2 On Enter{||POsearch(Jorc.d1.value,Jorc.d2.value)}
+
+@390, 750 Button obusca;
+Caption 'Buscar';
+Width 90;
+Action {|| POsearch(Jorc.d1.value,Jorc.d2.value)}
 
 End Window 
 Center Window Jorc
@@ -154,7 +179,13 @@ Return Nil
 Procedure POsearch(dataIni, dataFin)
 *----------------------*
 Jorc.Gorc.DeleteAllItems
-OrcDB->(OrdSetFocus(1))
+
+if Jorc.alfanome1.value == 1
+	OrcDB->(OrdSetFocus(1))
+Else 
+	OrcDB->(OrdSetFocus(2))
+Endif
+
 OrcDB->(DbSeek(DtoS(dataFin),.T.))
      
 Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof()) 
@@ -163,6 +194,8 @@ Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof())
           OrcDB->(DbSkip())
           Loop
      Endif
+     
+     
     
      Add Item {Alltrim(OrcDB->oNome,150,0),;
      Alltrim(Str(OrcDB->oHporD,10,0)),;
@@ -176,7 +209,7 @@ Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof())
      
 Enddo
      
-Return
+Return Nil
 *----------------------*
 Procedure Pmeta()
 *----------------------*
@@ -187,7 +220,6 @@ Title 'Metas';
 Child;
 Nomaximize;
 Nosize;
-On Init {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
 
 @ 10, 10 Grid Gmeta;
 Width 832 Height 450;
@@ -201,19 +233,40 @@ JUSTIFY{BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
 	BROWSE_JTFY_CENTER}
 
-@50, 870 Button BCmeta;
+Jmeta.Gmeta.header(1):= 'Nome'
+Jmeta.Gmeta.header(2):= 'Meta'
+Jmeta.Gmeta.header(3):= 'Data'
+Jmeta.Gmeta.header(4):= 'Prazo'
+
+@50, 880 Button BCmeta;
 Caption 'Nova Meta';
-Width 150;
+Width 130;
 Action {|| PCmeta()}
 
-@100,870 Combobox escolhemostra;
+@135,860 Frame tudopesq Caption 'Filtros de pesquisa' Width 160 Height 300 Transparent
+
+@160,880 Label infoescolhe value 'Calculado por:' 
+@180,880 Combobox escolhemostra;
 Items{'Hora', 'Preço'};
 Value 1;
-Width 110 Font 'Arial' Size 9 ;
-On Change {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+Width 100 Font 'Arial' Size 9 ;
 
-@150,870 Datepicker dm1 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
-@185,870 Datepicker dm2 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+@220,880 Label nomealfa2 value 'Organizar por: '
+@240,880 Combobox alfanome2;
+Items{'Último registro', 'Ordem alfabética'};
+Value 1;
+Width 120 Font 'Arial' Size 9 
+
+@275,870 Frame fmsearch1 caption 'Período de' Width 140 Height 100 Transparent
+@300,880 Datepicker dm1 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+@325,885 Label msearch2 value 'à' Width 200 Height 25 Font 'Arial' Size 9
+@345,880 Datepicker dm2 On Enter{||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+
+@390, 890 Button mbusca;
+Caption 'Buscar';
+Width 90;
+Action {||PMsearch(Jmeta.dm1.value,Jmeta.dm2.value,Jmeta.escolhemostra.value)}
+
 
 End Window 
 Center Window Jmeta 
@@ -223,18 +276,19 @@ Return Nil
 *----------------------*
 Procedure PMsearch(dataIni, dataFin, qualmostra)
 *----------------------*
-Jmeta.Gmeta.header(1):= 'Nome'
-Jmeta.Gmeta.header(2):= 'Meta'
-Jmeta.Gmeta.header(3):= 'Data'
-Jmeta.Gmeta.header(4):= 'Prazo'
-
 If qualmostra == 1
 
 Jmeta.Gmeta.header(5):= 'Horas pretendidas'
 Jmeta.Gmeta.header(6):= 'Meta Preço/Hora'
 Jmeta.Gmeta.header(7):= 'Meta diária'
 Jmeta.Gmeta.DeleteAllItems
-MetaDB->(OrdSetFocus(1))
+
+If Jmeta.alfanome2.value == 1 
+	MetaDB->(OrdSetFocus(1))
+Else
+	MetaDB->(OrdSetFocus(2))
+Endif
+
 MetaDB->(DbSeek(DtoS(dataFin),.T.))
      
 Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
@@ -270,7 +324,13 @@ Jmeta.Gmeta.header(5):= 'Valor pretendido'
 Jmeta.Gmeta.header(6):= 'Meta de horas'
 Jmeta.Gmeta.header(7):= 'Meta diária'
 Jmeta.Gmeta.DeleteAllItems
-MetaDB->(OrdSetFocus(1))	
+
+If Jmeta.alfanome2.value == 1 
+	MetaDB->(OrdSetFocus(1))
+Else
+	MetaDB->(OrdSetFocus(2))
+Endif
+
 MetaDB->(DbSeek(DtoS(dataFin),.T.))     
 Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof()) 
      
@@ -299,7 +359,7 @@ Do While ! MetaDB->mData < dataIni .and. ! MetaDB->(Eof())
 Enddo
 Endif
 
-Return
+Return Nil
 *----------------------*
 Procedure PCorc()
 *----------------------*
@@ -479,13 +539,13 @@ Function FCorc(nPreco,nDia,nHora,nAdd)
 *----------------------*
 Local vOrc[2]
 
-vOrc[1]:= val(nDia) * val(nHora)
-vOrc[2]:= val(nAdd) + (val(nPreco)* vOrc[1])
+vOrc[1]:= val(nDia) * val(nHora) /*Total de horas*/
+vOrc[2]:= val(nAdd) + (val(nPreco)* vOrc[1]) /*Valor final = Valor total + Adicionais*/
 
 JCorc.oTempo.value := Alltrim(str(vOrc[1],10,2)+' horas')
 JCorc.oResultado.value := Alltrim(str(vOrc[2],10,2)+' R$')
 
-Return 
+Return Nil
 *----------------------*
 Function FCmetaH(nMeta, nHora, nPrazo)
 *----------------------*
@@ -504,8 +564,8 @@ Function FCmetaP(nMeta, nPreco, nPrazo)
 *----------------------*
 Local vHora[2]
 
-vHora[1]:= val(nMeta) / val(nPreco) 
-vHora[2]:= vHora[1] / val(nPrazo)
+vHora[1]:= val(nMeta) / val(nPreco) /*total de horas para realizar meta*/
+vHora[2]:= vHora[1] / val(nPrazo) /*meta diária de horas*/
 
 JCmeta.mresult.value  := Alltrim(str(vHora[1],10,2)+ ' horas')
 JCmeta.mresultd.value := Alltrim(str(vHora[2],10,2)+ ' horas')
