@@ -1,3 +1,7 @@
+**issue 1  - Ordem alfabética [bug]
+**issue 2 - Alterar registros [Nova função]
+**issue 3 - Alterar janela principal [Mudar o estilo da janela(Jprinc)]
+
 #Include "Minigui.ch"
 #Include "Common.ch"
 *----------------------*
@@ -32,15 +36,13 @@ Nosize
 Caption 'Orçamentos'; 
 Width 100 Height 100;
 Action {|| Porc()}
-
 @100,155 Button Bmeta;
 Caption 'Metas';
 Width 100 Height 100;
 Action {|| Pmeta()}
 
 End Window 
-Center Window Jprinc
-Activate Window Jprinc 
+Jprinc.Activate  
 
 Return Nil
 *----------------------*
@@ -51,15 +53,15 @@ Local CdxOrc := 'indexaorc'
 Local OrcDB := 'OrcDB.DBF'
 
 If ! File (OrcDB)	
-     aadd(Struct, {'oNome' ,'C' , 150, 0 })
-     aadd(Struct, {'oHporD' ,'N' , 19, 4 })
-     aadd(Struct, {'oPporH' ,'N' , 19, 4 })
-     aadd(Struct, {'oDias' ,'N' , 19, 4 })
-     aadd(Struct, {'oTotalH' ,'N' , 19, 4 })
-     aadd(Struct, {'oAd' ,'N' , 19, 4 })
-     aadd(Struct, {'oValorT' ,'N' , 19, 4 })
-     aadd(Struct, {'oHora', 'C' , 8, 0})
-     aadd(Struct, {'oData', 'D' , 8, 0})
+     aadd(Struct,{'oNome' ,'C' , 150, 0 })
+     aadd(Struct,{'oHporD' ,'N' , 19, 4 })
+     aadd(Struct,{'oPporH' ,'N' , 19, 4 })
+     aadd(Struct,{'oDias' ,'N' , 19, 4 })
+     aadd(Struct,{'oTotalH' ,'N' , 19, 4 })
+     aadd(Struct,{'oAd' ,'N' , 19, 4 })
+     aadd(Struct,{'oValorT' ,'N' , 19, 4 })
+     aadd(Struct,{'oHora', 'C' , 8, 0})
+     aadd(Struct,{'oData', 'D' , 8, 0})
      DbCreate(OrcDB, Struct, DRIVER)
 Endif
 
@@ -95,9 +97,9 @@ If ! File (MetaDB)
      aadd(Struct,{'mNvalor' , 'N' , 19, 4 })
      aadd(Struct,{'mHhora' , 'N' , 19, 4 })
      aadd(Struct,{'mHdias' , 'N' , 19, 4 })
-     aadd(Struct, {'mHora', 'C' , 8, 0})
-     aadd(Struct, {'mData', 'D' , 8, 0})
-     aadd(Struct, {'HouV', 'C' , 1, 0})
+     aadd(Struct,{'mHora', 'C' , 8, 0})
+     aadd(Struct,{'mData', 'D' , 8, 0})
+     aadd(Struct,{'HouV', 'C' , 1, 0})
      DbCreate(MetaDB, Struct, DRIVER)
 Endif
 
@@ -119,6 +121,14 @@ Return (.T.)
 *----------------------*
 Procedure Porc()
 *----------------------*
+If IsWindowActive(Jorc)
+	MsgStop('Tela de Orçamentos já está em uso!')
+	DECLARE WINDOW Jorc
+    Jorc.Hide
+    Jorc.Show
+	Return Nil
+Endif
+
 Define Window Jorc;
 At 0,0;
 Width 900 Height 500;
@@ -133,11 +143,11 @@ Headers {'', '', '', '', '', '',''};
 Widths {100,100,100,100,100,100,100};
 JUSTIFY{BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
-	BROWSE_JTFY_LEFT,;
 	BROWSE_JTFY_CENTER,;
 	BROWSE_JTFY_CENTER,;
-	BROWSE_JTFY_LEFT,;
-	BROWSE_JTFY_LEFT}
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER,;
+	BROWSE_JTFY_CENTER}
 	
 Jorc.Gorc.header(1):= 'Cliente'
 Jorc.Gorc.header(2):= 'Horas por dia'
@@ -194,8 +204,6 @@ Do While ! OrcDB->oData < dataIni .and. ! OrcDB->(Eof())
           OrcDB->(DbSkip())
           Loop
      Endif
-     
-     
     
      Add Item {Alltrim(OrcDB->oNome,150,0),;
      Alltrim(Str(OrcDB->oHporD,10,0)),;
@@ -213,6 +221,14 @@ Return Nil
 *----------------------*
 Procedure Pmeta()
 *----------------------*
+If IsWindowActive(Jmeta)
+	MsgStop('Tela de Metas já está em uso!')
+	DECLARE WINDOW Jmeta
+    Jmeta.Hide
+    Jmeta.Show
+	Return Nil
+Endif
+
 Define Window Jmeta;
 At 0,0;
 Width 1050 Height 500;
@@ -243,10 +259,10 @@ Caption 'Nova Meta';
 Width 130;
 Action {|| PCmeta()}
 
-@135,860 Frame tudopesq Caption 'Filtros de pesquisa' Width 160 Height 300 Transparent
+@140,860 Frame tudopesq Caption 'Filtros de pesquisa' Width 160 Height 300 Transparent
 
-@160,880 Label infoescolhe value 'Calculado por:' 
-@180,880 Combobox escolhemostra;
+@165,880 Label infoescolhe value 'Calculado por:' 
+@185,880 Combobox escolhemostra;
 Items{'Hora', 'Preço'};
 Value 1;
 Width 100 Font 'Arial' Size 9 ;
@@ -363,6 +379,14 @@ Return Nil
 *----------------------*
 Procedure PCorc()
 *----------------------*
+If IsWindowActive(JCorc)
+	MsgStop('O Registro de Orçamentos já está em uso!')
+	DECLARE WINDOW JCorc
+    JCorc.Hide
+    JCorc.Show
+	Return Nil
+Endif
+
 Define Window JCorc;
 At 0,0;
 Width 550 Height 400;
@@ -435,6 +459,14 @@ Return Nil
 *----------------------*
 Procedure PCmeta()
 *----------------------*
+If IsWindowActive(JCmeta)
+	MsgStop('O Registro de Metas já está em uso!')
+	DECLARE WINDOW JCmeta
+	JCmeta.Hide
+	JCmeta.Show
+	Return Nil
+Endif
+
 Define Window JCmeta; 
 At 0,0;
 Width 550 Height 400;
@@ -574,7 +606,6 @@ Return Nil
 *----------------------*
 Function FCOgrava(cNome,nHD,nPH,nDias,nTH,nAd,nValt)
 *----------------------*
-OrcDB->(Ordsetfocus(1))
 OrcDB->(DbAppend())
 
 OrcDB->oNome := Alltrim(cNome)
@@ -593,7 +624,6 @@ Function FCMgrava(cNome,nMeta,nPrazo,nPretend,nResult1,nResult2,Gravaonde)
 *----------------------*
 If Gravaonde == 1
 
-MetaDB->(Ordsetfocus(1))
 MetaDB->(DbAppend())
 
 MetaDB->meNome := Alltrim(cNome)
@@ -608,7 +638,6 @@ MetaDB->HouV := 'H'
 
 Else
 
-MetaDB->(Ordsetfocus(1))
 MetaDB->(DbAppend())
 
 MetaDB->meNome := Alltrim(cNome)
