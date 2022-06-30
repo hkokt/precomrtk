@@ -1,7 +1,3 @@
-**issue 1  - Ordem alfabética [bug]
-**issue 2 - Alterar registros [Nova função]
-**issue 3 - Alterar janela principal [Mudar o estilo da janela(Jprinc)]
-
 #Include "Minigui.ch"
 #Include "Common.ch"
 *----------------------*
